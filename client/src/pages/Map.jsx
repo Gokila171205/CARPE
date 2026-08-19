@@ -2,15 +2,14 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import api from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 import L from 'leaflet';
 import {
   MapPin,
   Filter,
   RotateCcw,
   AlertCircle,
-  Layers,
   Map as MapIcon,
-  CheckCircle2,
   Info
 } from 'lucide-react';
 
@@ -39,6 +38,8 @@ function MapBoundsUpdater({ markers }) {
 }
 
 export default function Map() {
+  const { t, translateWasteType, translatePriority, language } = useLanguage();
+
   const [filterInputs, setFilterInputs] = useState({
     startDate: '',
     endDate: '',
@@ -150,70 +151,72 @@ export default function Map() {
   const getPriorityBadgeClass = (priority) => {
     switch (priority) {
       case 'HIGH':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-50 text-red-800 border-red-200';
       case 'MEDIUM':
-        return 'bg-amber-100 text-amber-800';
+        return 'bg-amber-50 text-amber-800 border-amber-200';
       case 'LOW':
       default:
-        return 'bg-emerald-100 text-emerald-800';
+        return 'bg-emerald-50 text-emerald-800 border-emerald-200';
     }
   };
 
   const formatKG = (val) => {
     if (val === undefined || val === null) return '0';
-    return Number(val).toLocaleString(undefined, { maximumFractionDigits: 2 });
+    return Number(val).toLocaleString(language === 'ta' ? 'ta-IN' : 'en-IN', { maximumFractionDigits: 2 });
   };
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="border-b border-gray-200 pb-4">
-        <h2 className="text-2xl font-bold text-gray-900">Waste Management Monitoring Map</h2>
-        <p className="mt-1 text-sm text-gray-500">
-          Geospatial waste distribution, collection density, and municipal priority monitoring.
+      <div className="bg-white border-2 border-slate-300 rounded-sm p-4 shadow-xs">
+        <h2 className="govt-section-header text-base uppercase tracking-wide">
+          {t('map.pageTitle')}
+        </h2>
+        <p className="text-xs text-slate-500 mt-0.5">
+          {t('map.pageSubtitle')}
         </p>
       </div>
 
       {/* 1. Filter Bar */}
-      <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white p-5 rounded-sm shadow-xs border-2 border-slate-300">
         <form onSubmit={handleApplyFilters} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5 items-end">
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-              Date From
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {t('analytics.dateFrom')}
             </label>
             <input
               type="date"
               name="startDate"
               value={filterInputs.startDate}
               onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white"
+              className="block w-full border border-slate-300 rounded py-1.5 px-3 text-xs leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-              Date To
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {t('analytics.dateTo')}
             </label>
             <input
               type="date"
               name="endDate"
               value={filterInputs.endDate}
               onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white"
+              className="block w-full border border-slate-300 rounded py-1.5 px-3 text-xs leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-              Location
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {t('analytics.locationFilter')}
             </label>
             <select
               name="location"
               value={filterInputs.location}
               onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white"
+              className="block w-full border border-slate-300 rounded py-1.5 px-3 text-xs leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
             >
-              <option value="">All Locations</option>
+              <option value="">{t('analytics.allLocations')}</option>
               {locationList.map((loc) => (
                 <option key={loc} value={loc}>
                   {loc}
@@ -223,19 +226,19 @@ export default function Map() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-              Waste Type
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {t('analytics.wasteTypeFilter')}
             </label>
             <select
               name="wasteType"
               value={filterInputs.wasteType}
               onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white"
+              className="block w-full border border-slate-300 rounded py-1.5 px-3 text-xs leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
             >
-              <option value="">All Types</option>
+              <option value="">{t('analytics.allTypes')}</option>
               {WASTE_TYPES.map((type) => (
                 <option key={type} value={type}>
-                  {type}
+                  {translateWasteType(type)}
                 </option>
               ))}
             </select>
@@ -245,19 +248,19 @@ export default function Map() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
+              className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-xs text-xs font-bold rounded text-white bg-[#003366] hover:bg-[#002244] focus:outline-none focus:ring-2 focus:ring-[#003366] disabled:opacity-50"
             >
-              <Filter className="h-4 w-4 mr-1.5" />
-              Apply
+              <Filter className="h-3.5 w-3.5 mr-1.5" />
+              {t('analytics.applyFilters')}
             </button>
             <button
               type="button"
               onClick={handleResetFilters}
               disabled={loading}
-              className="inline-flex justify-center items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
-              title="Reset Filters"
+              className="inline-flex justify-center items-center px-3 py-2 border border-slate-300 shadow-xs text-xs font-bold rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none disabled:opacity-50"
+              title={t('analytics.resetFilters')}
             >
-              <RotateCcw className="h-4 w-4 text-gray-500" />
+              <RotateCcw className="h-3.5 w-3.5 text-slate-500" />
             </button>
           </div>
         </form>
@@ -265,19 +268,19 @@ export default function Map() {
 
       {/* Error State */}
       {error && (
-        <div className="rounded-md bg-red-50 p-4 border border-red-200">
+        <div className="rounded bg-red-50 p-4 border border-red-200 text-xs">
           <div className="flex">
             <div className="flex-shrink-0">
-              <AlertCircle className="h-5 w-5 text-red-500" aria-hidden="true" />
+              <AlertCircle className="h-4 w-4 text-red-500" aria-hidden="true" />
             </div>
             <div className="ml-3 flex-1 md:flex md:justify-between">
-              <p className="text-sm font-medium text-red-800">{error}</p>
+              <p className="font-medium text-red-800">{error}</p>
               <button
                 type="button"
                 onClick={() => fetchMapData(activeFilters)}
-                className="mt-2 md:mt-0 text-sm font-semibold text-red-800 hover:underline"
+                className="mt-2 md:mt-0 font-bold text-red-800 hover:underline"
               >
-                Retry
+                {t('common.retry')}
               </button>
             </div>
           </div>
@@ -285,46 +288,48 @@ export default function Map() {
       )}
 
       {/* 2. Interactive Waste Map Container */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
+      <div className="bg-white p-6 rounded-sm shadow-xs border-2 border-slate-300 space-y-4">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h3 className="text-base font-semibold text-gray-900">Geospatial Collection Density</h3>
-            <p className="text-xs text-gray-500 mt-0.5">
-              Marker radius represents total waste volume; color indicates risk priority tier.
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
+              {t('map.cardTitle')}
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {t('map.cardSubtitle')}
             </p>
           </div>
 
           {/* 3. Map Legend */}
-          <div className="flex items-center gap-4 bg-gray-50 px-3 py-1.5 rounded-md border border-gray-200 text-xs">
-            <span className="font-semibold text-gray-700 uppercase tracking-wider">Level:</span>
+          <div className="flex items-center gap-3 bg-slate-50 px-3 py-1.5 rounded border border-slate-300 text-xs">
+            <span className="font-bold text-slate-700 uppercase tracking-wider">{t('map.legendTitle')}:</span>
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-red-500 inline-block shadow-sm"></span>
-              <span className="font-medium text-gray-700">HIGH (&gt;1,000 KG)</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block shadow-xs"></span>
+              <span className="font-bold text-slate-700">{t('map.legendHigh')}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-amber-500 inline-block shadow-sm"></span>
-              <span className="font-medium text-gray-700">MEDIUM (500-1,000 KG)</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block shadow-xs"></span>
+              <span className="font-bold text-slate-700">{t('map.legendMedium')}</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-full bg-emerald-500 inline-block shadow-sm"></span>
-              <span className="font-medium text-gray-700">LOW (≤500 KG)</span>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block shadow-xs"></span>
+              <span className="font-bold text-slate-700">{t('map.legendLow')}</span>
             </div>
           </div>
         </div>
 
         {/* Map Viewport */}
-        <div className="h-[520px] w-full rounded-lg overflow-hidden border border-gray-200 relative bg-gray-100">
+        <div className="h-[520px] w-full rounded overflow-hidden border border-slate-300 relative bg-slate-100">
           {loading ? (
-            <div className="h-full w-full flex flex-col items-center justify-center bg-gray-50 text-gray-500 space-y-3">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-              <p className="text-sm font-medium">Loading geospatial telemetry...</p>
+            <div className="h-full w-full flex flex-col items-center justify-center bg-slate-50 text-slate-500 space-y-2 text-xs">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#003366]"></div>
+              <p className="font-bold">{t('common.loading')}</p>
             </div>
           ) : mappedMarkers.length === 0 ? (
-            <div className="h-full w-full flex flex-col items-center justify-center text-gray-400 p-6 text-center space-y-2">
-              <MapIcon className="h-12 w-12 stroke-1 text-gray-300" />
-              <h4 className="text-base font-medium text-gray-700">No Geographic Data Available</h4>
-              <p className="text-sm max-w-md text-gray-500">
-                No geographic location data is available for the selected filters, or coordinates are not yet configured for registered zones.
+            <div className="h-full w-full flex flex-col items-center justify-center text-slate-400 p-6 text-center space-y-2 text-xs">
+              <MapIcon className="h-10 w-10 stroke-1 text-slate-300" />
+              <h4 className="font-bold text-slate-700 text-sm">{t('map.noDataTitle')}</h4>
+              <p className="max-w-md text-slate-500">
+                {t('map.noDataDesc')}
               </p>
             </div>
           ) : (
@@ -358,32 +363,32 @@ export default function Map() {
                   >
                     <Popup>
                       <div className="p-1 font-sans min-w-[200px]">
-                        <div className="border-b border-gray-200 pb-2 mb-2">
-                          <h4 className="font-bold text-gray-900 text-base">{loc.name}</h4>
-                          <span className="text-xs text-gray-500">{loc.areaType} Zone</span>
+                        <div className="border-b border-slate-200 pb-2 mb-2">
+                          <h4 className="font-bold text-slate-900 text-sm">{loc.name}</h4>
+                          <span className="text-xs text-slate-500">{loc.areaType}</span>
                         </div>
 
-                        <div className="space-y-1.5 text-xs text-gray-700">
+                        <div className="space-y-1.5 text-xs text-slate-700">
                           <div className="flex justify-between">
-                            <span className="text-gray-500">Waste Collected:</span>
-                            <span className="font-bold text-gray-900">{formatKG(loc.quantity)} KG</span>
+                            <span className="text-slate-500">{t('map.thTotalCollected')}:</span>
+                            <span className="font-bold text-slate-900">{formatKG(loc.quantity)} KG</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-500">Collections Count:</span>
-                            <span className="font-semibold text-gray-900">{loc.recordCount} entries</span>
+                            <span className="text-slate-500">{t('map.thCollections')}:</span>
+                            <span className="font-semibold text-slate-900">{loc.recordCount} entries</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-gray-500">Avg / Collection:</span>
-                            <span className="font-semibold text-gray-900">{formatKG(loc.avgQuantity)} KG</span>
+                            <span className="text-slate-500">Avg / Collection:</span>
+                            <span className="font-semibold text-slate-900">{formatKG(loc.avgQuantity)} KG</span>
                           </div>
-                          <div className="flex justify-between items-center pt-1 border-t border-gray-100">
-                            <span className="text-gray-500">Priority:</span>
+                          <div className="flex justify-between items-center pt-1 border-t border-slate-100">
+                            <span className="text-slate-500">{t('map.thPriority')}:</span>
                             <span
-                              className={`px-2 py-0.5 font-bold rounded text-[10px] ${getPriorityBadgeClass(
+                              className={`px-2 py-0.5 font-bold rounded text-[10px] uppercase border ${getPriorityBadgeClass(
                                 loc.priority
                               )}`}
                             >
-                              {loc.priority}
+                              {translatePriority(loc.priority)}
                             </span>
                           </div>
                         </div>
@@ -398,111 +403,73 @@ export default function Map() {
       </div>
 
       {/* 4. Location Analysis Table */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200">
-        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+      <div className="bg-white shadow-xs overflow-hidden rounded-sm border-2 border-slate-300">
+        <div className="px-5 py-3.5 border-b border-slate-200 flex justify-between items-center bg-slate-50">
           <div>
-            <h3 className="text-base font-semibold text-gray-900">Location Intelligence &amp; Telemetry</h3>
-            <p className="text-xs text-gray-500 mt-0.5">
-              Detailed breakdown of municipal zones, collection volumes, and geospatial readiness.
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
+              {t('map.tableTitle')}
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {t('map.tableSubtitle')}
             </p>
           </div>
-          <span className="text-xs text-gray-500 font-medium">
-            {locationsData.length} Locations Monitored
+          <span className="text-xs text-slate-500 font-bold">
+            {locationsData.length} {t('analytics.allLocations')}
           </span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="govt-table">
+            <thead>
               <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                >
-                  Location
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                >
-                  Zone Type
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                >
-                  Waste Collected
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                >
-                  Collections
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                >
-                  Geographic Status
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                >
-                  Priority
-                </th>
+                <th>{t('map.thLocation')}</th>
+                <th>{t('map.thZoneType')}</th>
+                <th>{t('map.thTotalCollected')}</th>
+                <th>{t('map.thCollections')}</th>
+                <th>{t('map.thStatus')}</th>
+                <th style={{ textAlign: 'right' }}>{t('map.thPriority')}</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-8 text-center text-gray-500 text-sm">
-                    <div className="flex justify-center items-center">
-                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600"></div>
-                    </div>
+                  <td colSpan="6" className="p-8 text-center text-slate-500 text-xs">
+                    {t('common.loading')}
                   </td>
                 </tr>
               ) : locationsData.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-8 text-center text-gray-500 text-sm">
-                    No location data available for the selected filters.
+                  <td colSpan="6" className="p-8 text-center text-slate-500 text-xs">
+                    {t('common.noRecordsFound')}
                   </td>
                 </tr>
               ) : (
                 locationsData.map((loc) => (
-                  <tr key={loc.location} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {loc.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {loc.areaType}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">
-                      {formatKG(loc.quantity)} KG
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {loc.recordCount} entries
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
+                  <tr key={loc.location}>
+                    <td className="font-bold text-slate-900">{loc.name}</td>
+                    <td className="text-slate-600">{loc.areaType}</td>
+                    <td className="font-bold text-slate-900">{formatKG(loc.quantity)} KG</td>
+                    <td className="text-slate-600">{loc.recordCount} entries</td>
+                    <td className="text-xs text-slate-500">
                       {loc.hasCoordinates ? (
-                        <span className="inline-flex items-center text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded font-medium">
+                        <span className="inline-flex items-center text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded font-mono font-bold border border-emerald-200">
                           <MapPin className="h-3 w-3 mr-1 text-emerald-600" />
                           {loc.latitude?.toFixed(4)}, {loc.longitude?.toFixed(4)}
                         </span>
                       ) : (
-                        <span className="inline-flex items-center text-gray-400 bg-gray-50 px-2 py-0.5 rounded">
-                          <Info className="h-3 w-3 mr-1 text-gray-400" />
-                          Location coordinates unavailable
+                        <span className="inline-flex items-center text-slate-400 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                          <Info className="h-3 w-3 mr-1 text-slate-400" />
+                          Coordinates unavailable
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-right">
+                    <td className="text-right">
                       <span
-                        className={`px-2.5 py-1 inline-flex text-xs leading-4 font-semibold rounded-full ${getPriorityBadgeClass(
+                        className={`px-2 py-0.5 inline-flex text-[10px] font-bold rounded uppercase border ${getPriorityBadgeClass(
                           loc.priority
                         )}`}
                       >
-                        {loc.priority}
+                        {translatePriority(loc.priority)}
                       </span>
                     </td>
                   </tr>
@@ -515,3 +482,4 @@ export default function Map() {
     </div>
   );
 }
+

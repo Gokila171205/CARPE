@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -8,16 +9,13 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
-  Legend
+  Tooltip
 } from 'recharts';
 import {
   TrendingUp,
   Filter,
   RotateCcw,
   AlertCircle,
-  Calendar,
-  Layers,
   Scale,
   Sparkles,
   Lightbulb,
@@ -34,6 +32,8 @@ const FORECAST_PERIOD_OPTIONS = [
 ];
 
 export default function Forecast() {
+  const { t, translateWasteType, language } = useLanguage();
+
   const [filterInputs, setFilterInputs] = useState({
     location: '',
     wasteType: '',
@@ -131,7 +131,7 @@ export default function Forecast() {
     try {
       const [y, m, d] = dateStr.split('-');
       const date = new Date(Date.UTC(y, m - 1, d));
-      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      return date.toLocaleDateString(language === 'ta' ? 'ta-IN' : 'en-IN', { month: 'short', day: 'numeric' });
     } catch {
       return dateStr;
     }
@@ -139,47 +139,47 @@ export default function Forecast() {
 
   const formatKG = (val) => {
     if (val === undefined || val === null) return 'N/A';
-    return Number(val).toLocaleString(undefined, { maximumFractionDigits: 1 });
+    return Number(val).toLocaleString(language === 'ta' ? 'ta-IN' : 'en-IN', { maximumFractionDigits: 1 });
   };
 
   const getReliabilityBadge = (reliability) => {
     switch (reliability) {
       case 'HIGH':
-        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        return 'bg-emerald-50 text-emerald-800 border-emerald-200';
       case 'MEDIUM':
-        return 'bg-amber-100 text-amber-800 border-amber-200';
+        return 'bg-amber-50 text-amber-800 border-amber-200';
       case 'LOW':
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-slate-100 text-slate-800 border-slate-300';
     }
   };
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="border-b border-gray-200 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Waste Forecast &amp; Planning</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Predictive volume forecasting, baseline trend analysis, and municipal resource planning.
-          </p>
-        </div>
+      <div className="bg-white border-2 border-slate-300 rounded-sm p-4 shadow-xs">
+        <h2 className="govt-section-header text-base uppercase tracking-wide">
+          {t('forecast.pageTitle')}
+        </h2>
+        <p className="text-xs text-slate-500 mt-0.5">
+          {t('forecast.pageSubtitle')}
+        </p>
       </div>
 
       {/* 1. Filter Bar */}
-      <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white p-5 rounded-sm shadow-xs border-2 border-slate-300">
         <form onSubmit={handleApplyFilters} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6 items-end">
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-              Location
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {t('analytics.locationFilter')}
             </label>
             <select
               name="location"
               value={filterInputs.location}
               onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white"
+              className="block w-full border border-slate-300 rounded py-1.5 px-3 text-xs leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
             >
-              <option value="">All Locations</option>
+              <option value="">{t('analytics.allLocations')}</option>
               {locationList.map((loc) => (
                 <option key={loc} value={loc}>
                   {loc}
@@ -189,33 +189,33 @@ export default function Forecast() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-              Waste Type
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {t('analytics.wasteTypeFilter')}
             </label>
             <select
               name="wasteType"
               value={filterInputs.wasteType}
               onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white"
+              className="block w-full border border-slate-300 rounded py-1.5 px-3 text-xs leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
             >
-              <option value="">All Types</option>
+              <option value="">{t('analytics.allTypes')}</option>
               {WASTE_TYPES.map((type) => (
                 <option key={type} value={type}>
-                  {type}
+                  {translateWasteType(type)}
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-              Forecast Horizon
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {t('forecast.horizonOption')}
             </label>
             <select
               name="forecastDays"
               value={filterInputs.forecastDays}
               onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white"
+              className="block w-full border border-slate-300 rounded py-1.5 px-3 text-xs leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
             >
               {FORECAST_PERIOD_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -226,28 +226,28 @@ export default function Forecast() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-              History From
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {t('analytics.dateFrom')}
             </label>
             <input
               type="date"
               name="startDate"
               value={filterInputs.startDate}
               onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white"
+              className="block w-full border border-slate-300 rounded py-1.5 px-3 text-xs leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-              History To
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {t('analytics.dateTo')}
             </label>
             <input
               type="date"
               name="endDate"
               value={filterInputs.endDate}
               onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white"
+              className="block w-full border border-slate-300 rounded py-1.5 px-3 text-xs leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
             />
           </div>
 
@@ -255,19 +255,19 @@ export default function Forecast() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
+              className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-xs text-xs font-bold rounded text-white bg-[#003366] hover:bg-[#002244] focus:outline-none focus:ring-2 focus:ring-[#003366] disabled:opacity-50"
             >
-              <Filter className="h-4 w-4 mr-1.5" />
-              Apply
+              <Filter className="h-3.5 w-3.5 mr-1.5" />
+              {t('analytics.applyFilters')}
             </button>
             <button
               type="button"
               onClick={handleResetFilters}
               disabled={loading}
-              className="inline-flex justify-center items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
-              title="Reset Filters"
+              className="inline-flex justify-center items-center px-3 py-2 border border-slate-300 shadow-xs text-xs font-bold rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none disabled:opacity-50"
+              title={t('analytics.resetFilters')}
             >
-              <RotateCcw className="h-4 w-4 text-gray-500" />
+              <RotateCcw className="h-3.5 w-3.5 text-slate-500" />
             </button>
           </div>
         </form>
@@ -275,19 +275,19 @@ export default function Forecast() {
 
       {/* Error State */}
       {error && (
-        <div className="rounded-md bg-red-50 p-4 border border-red-200">
+        <div className="rounded bg-red-50 p-4 border border-red-200 text-xs">
           <div className="flex">
             <div className="flex-shrink-0">
-              <AlertCircle className="h-5 w-5 text-red-500" aria-hidden="true" />
+              <AlertCircle className="h-4 w-4 text-red-500" aria-hidden="true" />
             </div>
             <div className="ml-3 flex-1 md:flex md:justify-between">
-              <p className="text-sm font-medium text-red-800">{error}</p>
+              <p className="font-medium text-red-800">{error}</p>
               <button
                 type="button"
                 onClick={() => fetchForecast(activeFilters)}
-                className="mt-2 md:mt-0 text-sm font-semibold text-red-800 hover:underline"
+                className="mt-2 md:mt-0 font-bold text-red-800 hover:underline"
               >
-                Retry
+                {t('common.retry')}
               </button>
             </div>
           </div>
@@ -297,51 +297,47 @@ export default function Forecast() {
       {/* Loading Skeleton */}
       {loading ? (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {[1, 2, 3, 4, 5].map((n) => (
-              <div key={n} className="bg-white p-5 rounded-lg shadow-sm border border-gray-200 animate-pulse space-y-2">
-                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                <div className="h-7 bg-gray-200 rounded w-1/2"></div>
+              <div key={n} className="bg-white p-5 rounded-sm shadow-xs border border-slate-300 animate-pulse space-y-2">
+                <div className="h-3 bg-slate-200 rounded w-2/3"></div>
+                <div className="h-7 bg-slate-200 rounded w-1/2"></div>
               </div>
             ))}
           </div>
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 h-[380px] flex items-center justify-center">
-            <div className="flex flex-col items-center space-y-3">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
-              <p className="text-sm font-medium text-gray-500">Analyzing historical waste data...</p>
+          <div className="bg-white p-6 rounded-sm shadow-xs border-2 border-slate-300 h-[380px] flex items-center justify-center">
+            <div className="flex flex-col items-center space-y-2 text-xs text-slate-500">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#003366]"></div>
+              <p className="font-bold">{t('common.loading')}</p>
             </div>
           </div>
         </div>
       ) : !isSufficient ? (
         /* Data Insufficiency Empty State */
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center space-y-3">
-          <Info className="h-12 w-12 text-amber-500 mx-auto" />
-          <h3 className="text-lg font-bold text-gray-900">
-            {forecastResponse?.message || 'Insufficient Historical Data'}
+        <div className="bg-white rounded-sm shadow-xs border-2 border-slate-300 p-12 text-center space-y-3">
+          <Info className="h-10 w-10 text-amber-500 mx-auto" />
+          <h3 className="text-base font-bold text-slate-900">
+            {t('forecast.insufficientTitle')}
           </h3>
-          <p className="text-sm text-gray-500 max-w-md mx-auto">
-            {forecastResponse?.reason ||
-              'A minimum of 2 historical collection dates is required to calculate baseline trend and variance.'}
-          </p>
-          <p className="text-xs text-gray-400">
-            Log additional collection entries under the Collections module to enable predictive forecasting for this selection.
+          <p className="text-xs text-slate-600 max-w-md mx-auto">
+            {t('forecast.insufficientDesc')}
           </p>
         </div>
       ) : (
         /* 2. Forecast KPI Cards */
         <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
             {/* KPI 1: Historical Daily Average */}
-            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
+            <div className="bg-white p-4 rounded-sm shadow-xs border-2 border-slate-300">
               <div className="flex items-center">
-                <div className="flex-shrink-0 p-2.5 bg-gray-100 rounded-md">
-                  <Scale className="h-5 w-5 text-gray-700" />
+                <div className="flex-shrink-0 p-2 bg-slate-100 text-slate-700 rounded">
+                  <Scale className="h-5 w-5" />
                 </div>
-                <div className="ml-3.5 flex-1 min-w-0">
-                  <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider truncate">
-                    Historical Daily Avg
+                <div className="ml-3 flex-1 min-w-0">
+                  <dt className="text-[10px] font-bold text-slate-600 uppercase tracking-wider truncate">
+                    {t('forecast.statHistoricalAvg')}
                   </dt>
-                  <dd className="mt-1 text-xl font-bold text-gray-900">
+                  <dd className="mt-1 text-lg font-black text-slate-900">
                     {formatKG(summary?.averageHistoricalWaste)} KG
                   </dd>
                 </div>
@@ -349,16 +345,16 @@ export default function Forecast() {
             </div>
 
             {/* KPI 2: Expected Forecast Daily Average */}
-            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
+            <div className="bg-white p-4 rounded-sm shadow-xs border-2 border-slate-300">
               <div className="flex items-center">
-                <div className="flex-shrink-0 p-2.5 bg-blue-50 rounded-md">
-                  <TrendingUp className="h-5 w-5 text-blue-600" />
+                <div className="flex-shrink-0 p-2 bg-blue-50 text-[#003366] rounded">
+                  <TrendingUp className="h-5 w-5" />
                 </div>
-                <div className="ml-3.5 flex-1 min-w-0">
-                  <dt className="text-xs font-semibold text-blue-600 uppercase tracking-wider truncate">
-                    Expected Daily Avg
+                <div className="ml-3 flex-1 min-w-0">
+                  <dt className="text-[10px] font-bold text-[#003366] uppercase tracking-wider truncate">
+                    {t('forecast.statExpectedAvg')}
                   </dt>
-                  <dd className="mt-1 text-xl font-bold text-blue-700">
+                  <dd className="mt-1 text-lg font-black text-[#003366]">
                     {formatKG(summary?.averageForecastWaste)} KG
                   </dd>
                 </div>
@@ -366,22 +362,22 @@ export default function Forecast() {
             </div>
 
             {/* KPI 3: Expected Growth % */}
-            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
+            <div className="bg-white p-4 rounded-sm shadow-xs border-2 border-slate-300">
               <div className="flex items-center">
-                <div className="flex-shrink-0 p-2.5 bg-emerald-50 rounded-md">
-                  <Sparkles className="h-5 w-5 text-emerald-600" />
+                <div className="flex-shrink-0 p-2 bg-emerald-50 text-emerald-800 rounded">
+                  <Sparkles className="h-5 w-5" />
                 </div>
-                <div className="ml-3.5 flex-1 min-w-0">
-                  <dt className="text-xs font-semibold text-emerald-600 uppercase tracking-wider truncate">
-                    Expected Growth
+                <div className="ml-3 flex-1 min-w-0">
+                  <dt className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider truncate">
+                    {t('forecast.statExpectedGrowth')}
                   </dt>
                   <dd
-                    className={`mt-1 text-xl font-bold ${
+                    className={`mt-1 text-lg font-black ${
                       (summary?.expectedGrowthPercentage || 0) > 0
                         ? 'text-red-600'
                         : (summary?.expectedGrowthPercentage || 0) < 0
                         ? 'text-emerald-600'
-                        : 'text-gray-900'
+                        : 'text-slate-900'
                     }`}
                   >
                     {(summary?.expectedGrowthPercentage || 0) > 0 ? '+' : ''}
@@ -392,39 +388,39 @@ export default function Forecast() {
             </div>
 
             {/* KPI 4: Forecast Horizon */}
-            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
+            <div className="bg-white p-4 rounded-sm shadow-xs border-2 border-slate-300">
               <div className="flex items-center">
-                <div className="flex-shrink-0 p-2.5 bg-gray-100 rounded-md">
-                  <Clock className="h-5 w-5 text-gray-700" />
+                <div className="flex-shrink-0 p-2 bg-slate-100 text-slate-700 rounded">
+                  <Clock className="h-5 w-5" />
                 </div>
-                <div className="ml-3.5 flex-1 min-w-0">
-                  <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider truncate">
-                    Forecast Period
+                <div className="ml-3 flex-1 min-w-0">
+                  <dt className="text-[10px] font-bold text-slate-600 uppercase tracking-wider truncate">
+                    {t('forecast.statHorizon')}
                   </dt>
-                  <dd className="mt-1 text-xl font-bold text-gray-900">
-                    Next {forecastData?.forecastDays} Days
+                  <dd className="mt-1 text-lg font-black text-slate-900">
+                    {forecastData?.forecastDays} {t('forecast.daysCount')}
                   </dd>
                 </div>
               </div>
             </div>
 
             {/* KPI 5: Forecast Reliability */}
-            <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-100">
+            <div className="bg-white p-4 rounded-sm shadow-xs border-2 border-slate-300">
               <div className="flex items-center">
-                <div className="flex-shrink-0 p-2.5 bg-gray-100 rounded-md">
-                  <ShieldCheck className="h-5 w-5 text-gray-700" />
+                <div className="flex-shrink-0 p-2 bg-slate-100 text-slate-700 rounded">
+                  <ShieldCheck className="h-5 w-5" />
                 </div>
-                <div className="ml-3.5 flex-1 min-w-0">
-                  <dt className="text-xs font-semibold text-gray-500 uppercase tracking-wider truncate">
-                    Reliability Tier
+                <div className="ml-3 flex-1 min-w-0">
+                  <dt className="text-[10px] font-bold text-slate-600 uppercase tracking-wider truncate">
+                    {t('forecast.statReliability')}
                   </dt>
                   <dd className="mt-1">
                     <span
-                      className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border ${getReliabilityBadge(
+                      className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${getReliabilityBadge(
                         forecastData?.reliability
                       )}`}
                     >
-                      {forecastData?.reliability} RELIABILITY
+                      {forecastData?.reliability}
                     </span>
                   </dd>
                 </div>
@@ -433,25 +429,25 @@ export default function Forecast() {
           </div>
 
           {/* 3. Predictive Forecast Chart */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
+          <div className="bg-white p-6 rounded-sm shadow-xs border-2 border-slate-300 space-y-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
               <div>
-                <h3 className="text-base font-semibold text-gray-900">
-                  Historical Waste vs. Projected Forecast
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
+                  {t('forecast.chartTitle')}
                 </h3>
-                <p className="text-xs text-gray-500 mt-0.5">
-                  Solid green indicates recorded municipal collections; dashed blue represents projected baseline trend.
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {t('forecast.chartSubtitle')}
                 </p>
               </div>
 
               <div className="flex items-center gap-4 text-xs">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-full bg-emerald-600 inline-block"></span>
-                  <span className="font-medium text-gray-700">Historical Actuals</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span>
+                  <span className="font-bold text-slate-700">{t('forecast.legendHistorical')}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-3 h-3 rounded-full bg-blue-500 inline-block"></span>
-                  <span className="font-medium text-gray-700">Forecast Horizon</span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
+                  <span className="font-bold text-slate-700">{t('forecast.legendForecast')}</span>
                 </div>
               </div>
             </div>
@@ -484,9 +480,8 @@ export default function Forecast() {
                     ]}
                     contentStyle={{
                       backgroundColor: '#ffffff',
-                      borderRadius: '8px',
-                      border: '1px solid #e2e8f0',
-                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
+                      borderRadius: '4px',
+                      border: '1px solid #cbd5e1',
                       fontSize: '12px'
                     }}
                   />
@@ -512,10 +507,10 @@ export default function Forecast() {
                   <Line
                     type="monotone"
                     dataKey="forecast"
-                    stroke="#3b82f6"
+                    stroke="#003366"
                     strokeWidth={2.5}
                     strokeDasharray="5 5"
-                    dot={{ r: 4, fill: '#3b82f6' }}
+                    dot={{ r: 4, fill: '#003366' }}
                     activeDot={{ r: 6 }}
                     connectNulls={false}
                     name="forecast"
@@ -528,75 +523,77 @@ export default function Forecast() {
           {/* 4. Forecast Summary & Planning Insight Panel */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Summary Details */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 space-y-4">
-              <div className="border-b border-gray-100 pb-3 flex justify-between items-center">
-                <h3 className="text-base font-semibold text-gray-900">Forecast Metadata &amp; Parameters</h3>
-                <span className="text-xs text-gray-400 font-medium">{forecastData?.method}</span>
+            <div className="bg-white p-6 rounded-sm shadow-xs border-2 border-slate-300 space-y-4">
+              <div className="border-b border-slate-200 pb-3 flex justify-between items-center">
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
+                  {t('forecast.metaHeading')}
+                </h3>
+                <span className="text-xs text-slate-500 font-bold">{forecastData?.method}</span>
               </div>
 
-              <div className="space-y-2.5 text-xs text-gray-700">
-                <div className="flex justify-between py-1 border-b border-gray-50">
-                  <span className="text-gray-500 font-medium">Historical Baseline Period:</span>
-                  <span className="font-semibold text-gray-900">
+              <div className="space-y-2.5 text-xs text-slate-700">
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500 font-medium">Historical Baseline Period:</span>
+                  <span className="font-bold text-slate-900">
                     {forecastData?.historicalPeriod?.startDate} to {forecastData?.historicalPeriod?.endDate} (
                     {forecastData?.historicalPeriod?.dataPointsCount} dates)
                   </span>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-gray-50">
-                  <span className="text-gray-500 font-medium">Forecast Projected Period:</span>
-                  <span className="font-semibold text-gray-900">
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500 font-medium">Forecast Projected Period:</span>
+                  <span className="font-bold text-slate-900">
                     {forecastData?.forecastPeriod?.startDate} to {forecastData?.forecastPeriod?.endDate} (
                     {forecastData?.forecastPeriod?.forecastDays} days)
                   </span>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-gray-50">
-                  <span className="text-gray-500 font-medium">Historical Daily Average:</span>
-                  <span className="font-semibold text-gray-900">
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500 font-medium">Historical Daily Average:</span>
+                  <span className="font-bold text-slate-900">
                     {formatKG(summary?.averageHistoricalWaste)} KG / day
                   </span>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-gray-50">
-                  <span className="text-gray-500 font-medium">Projected Daily Average:</span>
-                  <span className="font-semibold text-blue-700 font-bold">
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500 font-medium">Projected Daily Average:</span>
+                  <span className="font-bold text-[#003366]">
                     {formatKG(summary?.averageForecastWaste)} KG / day
                   </span>
                 </div>
 
-                <div className="flex justify-between py-1 border-b border-gray-50">
-                  <span className="text-gray-500 font-medium">Total Projected Horizon Load:</span>
-                  <span className="font-semibold text-gray-900">
+                <div className="flex justify-between py-1 border-b border-slate-100">
+                  <span className="text-slate-500 font-medium">Total Projected Horizon Load:</span>
+                  <span className="font-bold text-slate-900">
                     {formatKG(summary?.totalForecastWaste)} KG
                   </span>
                 </div>
 
                 <div className="flex justify-between py-1 items-center">
-                  <span className="text-gray-500 font-medium">Statistical Assessment:</span>
-                  <span className="text-gray-500">{forecastData?.reliabilityReason}</span>
+                  <span className="text-slate-500 font-medium">Statistical Assessment:</span>
+                  <span className="text-slate-600">{forecastData?.reliabilityReason}</span>
                 </div>
               </div>
             </div>
 
             {/* Planning Recommendation */}
-            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex flex-col justify-between space-y-4">
+            <div className="bg-white p-6 rounded-sm shadow-xs border-2 border-slate-300 flex flex-col justify-between space-y-4">
               <div>
-                <div className="flex items-center space-x-2 border-b border-gray-100 pb-3">
-                  <Lightbulb className="h-5 w-5 text-emerald-600" />
-                  <h3 className="text-base font-semibold text-gray-900">
-                    Municipal Planning Insight
+                <div className="flex items-center space-x-2 border-b border-slate-200 pb-3">
+                  <Lightbulb className="h-5 w-5 text-amber-600" />
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
+                    {t('forecast.planningInsightHeading')}
                   </h3>
                 </div>
 
                 <div className="mt-4 space-y-3">
-                  <div className="p-3.5 bg-gray-50 rounded-md border border-gray-100 text-xs text-gray-800">
-                    <span className="font-semibold text-gray-900">Operational Observation: </span>
+                  <div className="p-3.5 bg-slate-50 rounded border border-slate-200 text-xs text-slate-800">
+                    <span className="font-bold text-slate-900">Observation: </span>
                     <span>{forecastData?.planningInsight?.insight}</span>
                   </div>
 
-                  <div className="p-4 bg-emerald-50 rounded-md border border-emerald-100 text-xs text-emerald-950">
-                    <h4 className="font-bold text-emerald-900 uppercase tracking-wider mb-1">
+                  <div className="p-3.5 bg-blue-50 rounded border border-blue-200 text-xs text-blue-950">
+                    <h4 className="font-bold text-[#003366] uppercase tracking-wider mb-1">
                       Recommended Administrative Action:
                     </h4>
                     <p className="font-medium">{forecastData?.planningInsight?.recommendation}</p>
@@ -604,10 +601,10 @@ export default function Forecast() {
                 </div>
               </div>
 
-              <div className="text-[11px] text-gray-400 flex items-center space-x-1.5 pt-2 border-t border-gray-100">
-                <Info className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+              <div className="text-[11px] text-slate-400 flex items-center space-x-1.5 pt-2 border-t border-slate-200">
+                <Info className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
                 <span>
-                  Forecast projections represent statistical baseline extrapolations. Final dispatch actions should be approved by authorized supervisors.
+                  Forecast projections represent statistical baseline extrapolations.
                 </span>
               </div>
             </div>
@@ -617,3 +614,4 @@ export default function Forecast() {
     </div>
   );
 }
+

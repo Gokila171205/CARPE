@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import {
@@ -8,29 +9,23 @@ import {
   Filter,
   RotateCcw,
   AlertCircle,
-  Calendar,
-  Layers,
-  MapPin,
-  Scale,
-  Sparkles,
-  Info,
-  CheckCircle2,
-  Printer,
-  Table
+  Printer
 } from 'lucide-react';
 
 const WASTE_TYPES = ['Plastic', 'Organic', 'Paper', 'Metal', 'Glass', 'E-waste', 'Other'];
 
-const REPORT_TYPES = [
-  { id: 'summary', name: 'Summary Report', description: 'Consolidated overview with material and zonal breakdowns' },
-  { id: 'collection', name: 'Collection Activity Report', description: 'Granular logs of collection records and vehicles' },
-  { id: 'category', name: 'Material Category Report', description: 'Material stream distribution and recycling share' },
-  { id: 'location', name: 'Location Analysis Report', description: 'Municipal zone volumes and priority risk levels' },
-  { id: 'alert', name: 'Alerts & Anomalies Report', description: 'Active operational risks and recommended actions' },
-  { id: 'forecast', name: 'Predictive Forecast Report', description: 'Projected horizon volumes and planning metrics' }
-];
-
 export default function Reports() {
+  const { t, translateWasteType, translatePriority, language } = useLanguage();
+
+  const REPORT_TYPES = [
+    { id: 'summary', name: t('reports.typeSummary'), description: 'Consolidated overview with material and zonal breakdowns' },
+    { id: 'collection', name: t('reports.typeCollection'), description: 'Granular logs of collection records and vehicles' },
+    { id: 'category', name: t('reports.typeCategory'), description: 'Material stream distribution and recycling share' },
+    { id: 'location', name: t('reports.typeLocation'), description: 'Municipal zone volumes and priority risk levels' },
+    { id: 'alert', name: t('reports.typeAlert'), description: 'Active operational risks and recommended actions' },
+    { id: 'forecast', name: t('reports.typeForecast'), description: 'Projected horizon volumes and planning metrics' }
+  ];
+
   const [filterInputs, setFilterInputs] = useState({
     reportType: 'summary',
     startDate: '',
@@ -121,13 +116,13 @@ export default function Reports() {
 
   const formatKG = (val) => {
     if (val === undefined || val === null) return '0';
-    return Number(val).toLocaleString(undefined, { maximumFractionDigits: 1 });
+    return Number(val).toLocaleString(language === 'ta' ? 'ta-IN' : 'en-IN', { maximumFractionDigits: 1 });
   };
 
   const formatDate = (isoStr) => {
     if (!isoStr) return 'N/A';
     try {
-      return new Date(isoStr).toLocaleDateString(undefined, {
+      return new Date(isoStr).toLocaleDateString(language === 'ta' ? 'ta-IN' : 'en-IN', {
         month: 'short',
         day: 'numeric',
         year: 'numeric'
@@ -137,9 +132,7 @@ export default function Reports() {
     }
   };
 
-  // ---------------------------------------------------------------------------
   // CSV Export Handler
-  // ---------------------------------------------------------------------------
   const handleExportCSV = () => {
     if (!reportData) return;
 
@@ -147,8 +140,7 @@ export default function Reports() {
     const reportType = activeFilters.reportType || 'summary';
     const timestamp = new Date().toISOString().split('T')[0];
 
-    // CSV Header metadata
-    csvContent += `CARPE Waste Management Platform - Official Report\r\n`;
+    csvContent += `Government of Tamil Nadu - CARPE Solid Waste Management Report\r\n`;
     csvContent += `Report Type,${reportData.title || reportType}\r\n`;
     csvContent += `Generated Date,${new Date().toISOString()}\r\n`;
     csvContent += `Location Filter,${reportData.filters?.location || 'All'}\r\n`;
@@ -213,34 +205,32 @@ export default function Reports() {
     document.body.removeChild(link);
   };
 
-  // ---------------------------------------------------------------------------
   // PDF Export Handler
-  // ---------------------------------------------------------------------------
   const handleExportPDF = () => {
     if (!reportData) return;
 
     const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
     const reportType = activeFilters.reportType || 'summary';
-    const timestamp = new Date().toLocaleDateString(undefined, {
+    const timestamp = new Date().toLocaleDateString(language === 'ta' ? 'ta-IN' : 'en-IN', {
       month: 'long',
       day: 'numeric',
       year: 'numeric'
     });
 
     // 1. Header Banner
-    doc.setFillColor(16, 185, 129); // Emerald color
+    doc.setFillColor(0, 51, 102); // Deep Institutional Navy
     doc.rect(0, 0, 595.28, 60, 'F');
 
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18);
+    doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('CARPE WASTE MANAGEMENT PLATFORM', 40, 36);
+    doc.text('GOVERNMENT OF TAMIL NADU - DEPARTMENT OF SOLID WASTE MANAGEMENT', 40, 36);
 
     // 2. Report Title & Metadata
     doc.setTextColor(30, 41, 59);
-    doc.setFontSize(14);
+    doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
-    doc.text(reportData.title || 'Official Waste Management Report', 40, 90);
+    doc.text(reportData.title || 'Official Statutory Waste Management Report', 40, 90);
 
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
@@ -270,7 +260,7 @@ export default function Reports() {
           ['Dominant Material Category', summary.highestWasteCategory?.name || 'N/A']
         ],
         theme: 'striped',
-        headStyles: { fillColor: [16, 185, 129] },
+        headStyles: { fillColor: [0, 51, 102] },
         styles: { fontSize: 9 }
       });
 
@@ -327,7 +317,7 @@ export default function Reports() {
           r.collector
         ]),
         theme: 'striped',
-        headStyles: { fillColor: [16, 185, 129] },
+        headStyles: { fillColor: [0, 51, 102] },
         styles: { fontSize: 8 }
       });
     } else if (reportType === 'category') {
@@ -336,7 +326,7 @@ export default function Reports() {
         head: [['Material Category', 'Total Waste (KG)', 'Percentage Share']],
         body: (reportData.categories || []).map((c) => [c.name, `${formatKG(c.total)} KG`, `${c.percentage}%`]),
         theme: 'striped',
-        headStyles: { fillColor: [16, 185, 129] },
+        headStyles: { fillColor: [0, 51, 102] },
         styles: { fontSize: 9 }
       });
     } else if (reportType === 'location') {
@@ -351,7 +341,7 @@ export default function Reports() {
           l.status
         ]),
         theme: 'striped',
-        headStyles: { fillColor: [16, 185, 129] },
+        headStyles: { fillColor: [0, 51, 102] },
         styles: { fontSize: 9 }
       });
     } else if (reportType === 'alert') {
@@ -366,7 +356,7 @@ export default function Reports() {
           a.recommendation || ''
         ]),
         theme: 'striped',
-        headStyles: { fillColor: [16, 185, 129] },
+        headStyles: { fillColor: [0, 51, 102] },
         styles: { fontSize: 8 }
       });
     } else if (reportType === 'forecast') {
@@ -383,7 +373,7 @@ export default function Reports() {
           ['Statistical Reliability', f?.reliability || 'N/A']
         ],
         theme: 'striped',
-        headStyles: { fillColor: [16, 185, 129] },
+        headStyles: { fillColor: [0, 51, 102] },
         styles: { fontSize: 9 }
       });
     }
@@ -395,7 +385,7 @@ export default function Reports() {
       doc.setFontSize(8);
       doc.setTextColor(148, 163, 184);
       doc.text(
-        `Generated by CARPE Waste Management Platform • Official Administrative Report • Page ${i} of ${pageCount}`,
+        `CARPE Portal • Government of Tamil Nadu • Official Record • Page ${i} of ${pageCount}`,
         40,
         820
       );
@@ -407,95 +397,97 @@ export default function Reports() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="border-b border-gray-200 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-white border-2 border-slate-300 rounded-sm p-4 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Waste Management Reports</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Official administrative reports, regulatory summaries, and structured data exports.
+          <h2 className="govt-section-header text-base uppercase tracking-wide">
+            {t('reports.pageTitle')}
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {t('reports.pageSubtitle')}
           </p>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={handleExportCSV}
             disabled={loading || !reportData}
-            className="inline-flex items-center px-3.5 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
+            className="inline-flex items-center px-3 py-1.5 border border-slate-300 shadow-xs text-xs font-bold rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none disabled:opacity-50"
           >
-            <Download className="h-4 w-4 mr-1.5 text-gray-500" />
-            Export CSV
+            <Download className="h-3.5 w-3.5 mr-1.5 text-slate-500" />
+            {t('reports.exportCSV')}
           </button>
           <button
             type="button"
             onClick={handleExportPDF}
             disabled={loading || !reportData}
-            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
+            className="inline-flex items-center px-3.5 py-1.5 border border-transparent shadow-xs text-xs font-bold rounded text-white bg-[#003366] hover:bg-[#002244] focus:outline-none disabled:opacity-50"
           >
-            <Printer className="h-4 w-4 mr-1.5" />
-            Export PDF
+            <Printer className="h-3.5 w-3.5 mr-1.5" />
+            {t('reports.exportPDF')}
           </button>
         </div>
       </div>
 
       {/* 1. Filter Bar */}
-      <div className="bg-white p-5 rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-white p-5 rounded-sm shadow-xs border-2 border-slate-300">
         <form onSubmit={handleApplyFilters} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6 items-end">
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-              Report Type
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {t('reports.reportTypeSelect')}
             </label>
             <select
               name="reportType"
               value={filterInputs.reportType}
               onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white font-medium text-gray-900"
+              className="block w-full border border-slate-300 rounded py-1.5 px-3 text-xs leading-5 bg-white font-bold text-slate-900 focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
             >
-              {REPORT_TYPES.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
+              {REPORT_TYPES.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.name}
                 </option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-              Date From
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {t('analytics.dateFrom')}
             </label>
             <input
               type="date"
               name="startDate"
               value={filterInputs.startDate}
               onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white"
+              className="block w-full border border-slate-300 rounded py-1.5 px-3 text-xs leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-              Date To
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {t('analytics.dateTo')}
             </label>
             <input
               type="date"
               name="endDate"
               value={filterInputs.endDate}
               onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white"
+              className="block w-full border border-slate-300 rounded py-1.5 px-3 text-xs leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-              Location
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {t('analytics.locationFilter')}
             </label>
             <select
               name="location"
               value={filterInputs.location}
               onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white"
+              className="block w-full border border-slate-300 rounded py-1.5 px-3 text-xs leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
             >
-              <option value="">All Locations</option>
+              <option value="">{t('analytics.allLocations')}</option>
               {locationList.map((loc) => (
                 <option key={loc} value={loc}>
                   {loc}
@@ -505,19 +497,19 @@ export default function Reports() {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-              Waste Type
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+              {t('analytics.wasteTypeFilter')}
             </label>
             <select
               name="wasteType"
               value={filterInputs.wasteType}
               onChange={handleInputChange}
-              className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm bg-white"
+              className="block w-full border border-slate-300 rounded py-1.5 px-3 text-xs leading-5 bg-white focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
             >
-              <option value="">All Types</option>
+              <option value="">{t('analytics.allTypes')}</option>
               {WASTE_TYPES.map((type) => (
                 <option key={type} value={type}>
-                  {type}
+                  {translateWasteType(type)}
                 </option>
               ))}
             </select>
@@ -527,19 +519,19 @@ export default function Reports() {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
+              className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent shadow-xs text-xs font-bold rounded text-white bg-[#003366] hover:bg-[#002244] focus:outline-none focus:ring-2 focus:ring-[#003366] disabled:opacity-50"
             >
-              <Filter className="h-4 w-4 mr-1.5" />
-              Generate
+              <Filter className="h-3.5 w-3.5 mr-1.5" />
+              {t('reports.generateButton')}
             </button>
             <button
               type="button"
               onClick={handleResetFilters}
               disabled={loading}
-              className="inline-flex justify-center items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 disabled:opacity-50"
-              title="Reset Filters"
+              className="inline-flex justify-center items-center px-3 py-2 border border-slate-300 shadow-xs text-xs font-bold rounded text-slate-700 bg-white hover:bg-slate-50 focus:outline-none disabled:opacity-50"
+              title={t('analytics.resetFilters')}
             >
-              <RotateCcw className="h-4 w-4 text-gray-500" />
+              <RotateCcw className="h-3.5 w-3.5 text-slate-500" />
             </button>
           </div>
         </form>
@@ -547,19 +539,19 @@ export default function Reports() {
 
       {/* Error State */}
       {error && (
-        <div className="rounded-md bg-red-50 p-4 border border-red-200">
+        <div className="rounded bg-red-50 p-4 border border-red-200 text-xs">
           <div className="flex">
             <div className="flex-shrink-0">
-              <AlertCircle className="h-5 w-5 text-red-500" aria-hidden="true" />
+              <AlertCircle className="h-4 w-4 text-red-500" aria-hidden="true" />
             </div>
             <div className="ml-3 flex-1 md:flex md:justify-between">
-              <p className="text-sm font-medium text-red-800">{error}</p>
+              <p className="font-medium text-red-800">{error}</p>
               <button
                 type="button"
                 onClick={() => fetchReport(activeFilters)}
-                className="mt-2 md:mt-0 text-sm font-semibold text-red-800 hover:underline"
+                className="mt-2 md:mt-0 font-bold text-red-800 hover:underline"
               >
-                Retry
+                {t('common.retry')}
               </button>
             </div>
           </div>
@@ -568,96 +560,96 @@ export default function Reports() {
 
       {/* 2. Official Government Report Document Preview */}
       {loading ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-16 text-center space-y-3">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600 mx-auto"></div>
-          <h4 className="text-base font-semibold text-gray-900">Generating Report...</h4>
-          <p className="text-xs text-gray-500">Compiling official records and aggregating municipal data...</p>
+        <div className="bg-white rounded-sm shadow-xs border-2 border-slate-300 p-16 text-center space-y-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#003366] mx-auto"></div>
+          <h4 className="text-sm font-bold text-slate-900">{t('common.loading')}</h4>
+          <p className="text-xs text-slate-500">Compiling official records and aggregating municipal data...</p>
         </div>
       ) : !reportData ? (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center space-y-3">
-          <FileText className="h-12 w-12 text-gray-300 mx-auto stroke-1" />
-          <h4 className="text-base font-semibold text-gray-700">No Data Available</h4>
-          <p className="text-xs text-gray-500">No data available for the selected reporting period.</p>
+        <div className="bg-white rounded-sm shadow-xs border-2 border-slate-300 p-12 text-center space-y-2">
+          <FileText className="h-10 w-10 text-slate-300 mx-auto stroke-1" />
+          <h4 className="text-sm font-bold text-slate-700">{t('common.noRecordsFound')}</h4>
+          <p className="text-xs text-slate-500">No data available for the selected reporting period.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-white rounded-sm shadow-xs border-2 border-slate-300 overflow-hidden">
           {/* Institutional Document Header */}
-          <div className="bg-slate-900 text-white p-6 sm:p-8">
+          <div className="bg-[#003366] text-white p-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">
-                  CARPE Waste Management &amp; Decision Intelligence
+                <span className="text-[10px] font-bold uppercase tracking-widest text-amber-400">
+                  {t('reports.statutoryNotice')}
                 </span>
-                <h1 className="text-xl sm:text-2xl font-extrabold text-white mt-1">
+                <h1 className="text-lg font-black text-white mt-1">
                   {reportData.title}
                 </h1>
               </div>
-              <div className="text-xs text-slate-300 sm:text-right">
-                <p className="font-semibold text-white">Official Administrative Record</p>
-                <p className="mt-0.5">Generated: {formatDate(reportData.generatedAt)}</p>
+              <div className="text-xs text-slate-200 sm:text-right">
+                <p className="font-bold text-white">GOVERNMENT OF TAMIL NADU</p>
+                <p className="text-[11px] text-slate-300 mt-0.5">Generated: {formatDate(reportData.generatedAt)}</p>
               </div>
             </div>
 
             {/* Scope / Metadata Banner */}
-            <div className="mt-6 pt-4 border-t border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+            <div className="mt-4 pt-3 border-t border-blue-900 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
               <div>
-                <span className="text-slate-400 font-medium">Reporting Window:</span>
+                <span className="text-slate-300 font-bold">Reporting Window:</span>
                 <p className="text-white font-semibold mt-0.5">
                   {reportData.filters?.startDate} to {reportData.filters?.endDate}
                 </p>
               </div>
               <div>
-                <span className="text-slate-400 font-medium">Location Scope:</span>
+                <span className="text-slate-300 font-bold">Location Scope:</span>
                 <p className="text-white font-semibold mt-0.5">{reportData.filters?.location}</p>
               </div>
               <div>
-                <span className="text-slate-400 font-medium">Material Stream:</span>
+                <span className="text-slate-300 font-bold">Material Stream:</span>
                 <p className="text-white font-semibold mt-0.5">{reportData.filters?.wasteType}</p>
               </div>
               <div>
-                <span className="text-slate-400 font-medium">Security Classification:</span>
-                <p className="text-emerald-400 font-bold mt-0.5">INTERNAL / MUNICIPAL</p>
+                <span className="text-slate-300 font-bold">Classification:</span>
+                <p className="text-amber-300 font-bold mt-0.5">INTERNAL / STATUTORY</p>
               </div>
             </div>
           </div>
 
           {/* Document Body */}
-          <div className="p-6 sm:p-8 space-y-8">
+          <div className="p-6 space-y-6">
             {/* TYPE 1: SUMMARY REPORT */}
             {reportData.reportType === 'summary' && (
-              <div className="space-y-8">
+              <div className="space-y-6">
                 {/* 4 Summary Cards */}
                 <div>
-                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+                  <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                     Executive Key Metrics
                   </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <span className="text-xs text-gray-500 font-medium">Total Waste</span>
-                      <p className="text-xl font-bold text-gray-900 mt-1">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="p-3.5 bg-slate-50 rounded border border-slate-200">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase">{t('analytics.statTotalCollected')}</span>
+                      <p className="text-lg font-black text-slate-900 mt-1">
                         {formatKG(reportData.summary?.totalWaste)} KG
                       </p>
                     </div>
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <span className="text-xs text-gray-500 font-medium">Daily Average</span>
-                      <p className="text-xl font-bold text-gray-900 mt-1">
+                    <div className="p-3.5 bg-slate-50 rounded border border-slate-200">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase">{t('analytics.statDailyAverage')}</span>
+                      <p className="text-lg font-black text-slate-900 mt-1">
                         {formatKG(reportData.summary?.averageDailyWaste)} KG / day
                       </p>
                     </div>
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <span className="text-xs text-gray-500 font-medium">Period Growth</span>
+                    <div className="p-3.5 bg-slate-50 rounded border border-slate-200">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase">{t('analytics.statPeriodGrowth')}</span>
                       <p
-                        className={`text-xl font-bold mt-1 ${
-                          (reportData.summary?.growthPercentage || 0) > 0 ? 'text-red-600' : 'text-emerald-600'
+                        className={`text-lg font-black mt-1 ${
+                          (reportData.summary?.growthPercentage || 0) > 0 ? 'text-red-600' : 'text-emerald-700'
                         }`}
                       >
                         {(reportData.summary?.growthPercentage || 0) > 0 ? '+' : ''}
                         {reportData.summary?.growthPercentage || 0}%
                       </p>
                     </div>
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                      <span className="text-xs text-gray-500 font-medium">Recyclable Share</span>
-                      <p className="text-xl font-bold text-emerald-700 mt-1">
+                    <div className="p-3.5 bg-slate-50 rounded border border-slate-200">
+                      <span className="text-[10px] text-slate-500 font-bold uppercase">{t('analytics.statRecyclableShare')}</span>
+                      <p className="text-lg font-black text-emerald-800 mt-1">
                         {reportData.summary?.recyclablePercentage || 0}%
                       </p>
                     </div>
@@ -666,24 +658,24 @@ export default function Reports() {
 
                 {/* Material Category Composition */}
                 <div>
-                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+                  <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                     Material Stream Composition
                   </h3>
-                  <div className="overflow-x-auto border border-gray-200 rounded-lg">
-                    <table className="min-w-full divide-y divide-gray-200 text-xs">
-                      <thead className="bg-gray-50">
+                  <div className="overflow-x-auto">
+                    <table className="govt-table">
+                      <thead>
                         <tr>
-                          <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Material Category</th>
-                          <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Total Collected</th>
-                          <th className="px-6 py-3 text-right font-semibold text-gray-600 uppercase">Composition Share</th>
+                          <th>Material Category</th>
+                          <th>Total Collected</th>
+                          <th style={{ textAlign: 'right' }}>Composition Share</th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody>
                         {(reportData.categories || []).map((c) => (
-                          <tr key={c.name} className="hover:bg-gray-50">
-                            <td className="px-6 py-3.5 font-medium text-gray-900">{c.name}</td>
-                            <td className="px-6 py-3.5 text-gray-700 font-semibold">{formatKG(c.total)} KG</td>
-                            <td className="px-6 py-3.5 text-right font-bold text-emerald-700">{c.percentage}%</td>
+                          <tr key={c.name}>
+                            <td className="font-bold text-slate-900">{translateWasteType(c.name)}</td>
+                            <td className="font-semibold text-slate-800">{formatKG(c.total)} KG</td>
+                            <td className="text-right font-black text-emerald-800">{c.percentage}%</td>
                           </tr>
                         ))}
                       </tbody>
@@ -693,36 +685,36 @@ export default function Reports() {
 
                 {/* Location Rankings */}
                 <div>
-                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
+                  <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
                     Municipal Zone Distribution
                   </h3>
-                  <div className="overflow-x-auto border border-gray-200 rounded-lg">
-                    <table className="min-w-full divide-y divide-gray-200 text-xs">
-                      <thead className="bg-gray-50">
+                  <div className="overflow-x-auto">
+                    <table className="govt-table">
+                      <thead>
                         <tr>
-                          <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Municipal Zone</th>
-                          <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Total Waste</th>
-                          <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Collection Entries</th>
-                          <th className="px-6 py-3 text-right font-semibold text-gray-600 uppercase">Risk Level</th>
+                          <th>Municipal Zone</th>
+                          <th>Total Waste</th>
+                          <th>Collection Entries</th>
+                          <th style={{ textAlign: 'right' }}>Risk Level</th>
                         </tr>
                       </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
+                      <tbody>
                         {(reportData.locations || []).map((l) => (
-                          <tr key={l.name} className="hover:bg-gray-50">
-                            <td className="px-6 py-3.5 font-medium text-gray-900">{l.name}</td>
-                            <td className="px-6 py-3.5 text-gray-700 font-semibold">{formatKG(l.total)} KG</td>
-                            <td className="px-6 py-3.5 text-gray-500">{l.count} records</td>
-                            <td className="px-6 py-3.5 text-right font-semibold">
+                          <tr key={l.name}>
+                            <td className="font-bold text-slate-900">{l.name}</td>
+                            <td className="font-semibold text-slate-800">{formatKG(l.total)} KG</td>
+                            <td className="text-slate-600">{l.count} records</td>
+                            <td className="text-right font-bold">
                               <span
-                                className={`px-2 py-0.5 rounded text-[10px] ${
+                                className={`px-2 py-0.5 rounded text-[10px] uppercase border ${
                                   l.status === 'High'
-                                    ? 'bg-red-100 text-red-800'
+                                    ? 'bg-red-50 text-red-800 border-red-200'
                                     : l.status === 'Medium'
-                                    ? 'bg-amber-100 text-amber-800'
-                                    : 'bg-emerald-100 text-emerald-800'
+                                    ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                    : 'bg-emerald-50 text-emerald-800 border-emerald-200'
                                 }`}
                               >
-                                {l.status}
+                                {translatePriority(l.status?.toUpperCase() || 'LOW')}
                               </span>
                             </td>
                           </tr>
@@ -737,31 +729,31 @@ export default function Reports() {
             {/* TYPE 2: COLLECTION REPORT */}
             {reportData.reportType === 'collection' && (
               <div className="space-y-4">
-                <div className="flex justify-between items-center text-xs text-gray-500">
+                <div className="flex justify-between items-center text-xs text-slate-500 font-bold">
                   <span>Displaying {reportData.records?.length || 0} collections</span>
                   <span>Total Records: {reportData.pagination?.totalCount || 0}</span>
                 </div>
-                <div className="overflow-x-auto border border-gray-200 rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200 text-xs">
-                    <thead className="bg-gray-50">
+                <div className="overflow-x-auto">
+                  <table className="govt-table">
+                    <thead>
                       <tr>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Collection Date</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Location</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Waste Type</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Quantity</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Vehicle</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Collector</th>
+                        <th>Collection Date</th>
+                        <th>Location</th>
+                        <th>Waste Type</th>
+                        <th>Quantity</th>
+                        <th>Vehicle</th>
+                        <th>Collector</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody>
                       {(reportData.records || []).map((r) => (
-                        <tr key={r._id} className="hover:bg-gray-50">
-                          <td className="px-6 py-3.5 font-medium text-gray-900">{r.date}</td>
-                          <td className="px-6 py-3.5 text-gray-700">{r.location}</td>
-                          <td className="px-6 py-3.5 text-gray-700">{r.wasteType}</td>
-                          <td className="px-6 py-3.5 font-bold text-gray-900">{formatKG(r.quantity)} KG</td>
-                          <td className="px-6 py-3.5 text-gray-500">{r.vehicle}</td>
-                          <td className="px-6 py-3.5 text-gray-500">{r.collector}</td>
+                        <tr key={r._id}>
+                          <td className="font-bold text-slate-900">{r.date}</td>
+                          <td className="text-slate-700">{r.location}</td>
+                          <td className="text-slate-700">{translateWasteType(r.wasteType)}</td>
+                          <td className="font-black text-slate-900">{formatKG(r.quantity)} KG</td>
+                          <td className="font-mono text-xs text-slate-600">{r.vehicle}</td>
+                          <td className="text-slate-600">{r.collector}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -773,21 +765,21 @@ export default function Reports() {
             {/* TYPE 3: CATEGORY REPORT */}
             {reportData.reportType === 'category' && (
               <div className="space-y-4">
-                <div className="overflow-x-auto border border-gray-200 rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200 text-xs">
-                    <thead className="bg-gray-50">
+                <div className="overflow-x-auto">
+                  <table className="govt-table">
+                    <thead>
                       <tr>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Waste Stream</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Total Collected</th>
-                        <th className="px-6 py-3 text-right font-semibold text-gray-600 uppercase">Percentage Share</th>
+                        <th>Waste Stream</th>
+                        <th>Total Collected</th>
+                        <th style={{ textAlign: 'right' }}>Percentage Share</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody>
                       {(reportData.categories || []).map((c) => (
-                        <tr key={c.name} className="hover:bg-gray-50">
-                          <td className="px-6 py-3.5 font-medium text-gray-900">{c.name}</td>
-                          <td className="px-6 py-3.5 font-semibold text-gray-900">{formatKG(c.total)} KG</td>
-                          <td className="px-6 py-3.5 text-right font-bold text-emerald-700">{c.percentage}%</td>
+                        <tr key={c.name}>
+                          <td className="font-bold text-slate-900">{translateWasteType(c.name)}</td>
+                          <td className="font-bold text-slate-900">{formatKG(c.total)} KG</td>
+                          <td className="text-right font-black text-emerald-800">{c.percentage}%</td>
                         </tr>
                       ))}
                     </tbody>
@@ -799,35 +791,35 @@ export default function Reports() {
             {/* TYPE 4: LOCATION REPORT */}
             {reportData.reportType === 'location' && (
               <div className="space-y-4">
-                <div className="overflow-x-auto border border-gray-200 rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200 text-xs">
-                    <thead className="bg-gray-50">
+                <div className="overflow-x-auto">
+                  <table className="govt-table">
+                    <thead>
                       <tr>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Municipal Zone</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Total Collected</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Collections</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Average Per Entry</th>
-                        <th className="px-6 py-3 text-right font-semibold text-gray-600 uppercase">Risk Level</th>
+                        <th>Municipal Zone</th>
+                        <th>Total Collected</th>
+                        <th>Collections</th>
+                        <th>Average Per Entry</th>
+                        <th style={{ textAlign: 'right' }}>Risk Level</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody>
                       {(reportData.locations || []).map((l) => (
-                        <tr key={l.name} className="hover:bg-gray-50">
-                          <td className="px-6 py-3.5 font-medium text-gray-900">{l.name}</td>
-                          <td className="px-6 py-3.5 font-semibold text-gray-900">{formatKG(l.total)} KG</td>
-                          <td className="px-6 py-3.5 text-gray-500">{l.count} records</td>
-                          <td className="px-6 py-3.5 text-gray-700">{formatKG(l.averagePerRecord)} KG</td>
-                          <td className="px-6 py-3.5 text-right font-semibold">
+                        <tr key={l.name}>
+                          <td className="font-bold text-slate-900">{l.name}</td>
+                          <td className="font-bold text-slate-900">{formatKG(l.total)} KG</td>
+                          <td className="text-slate-600">{l.count} records</td>
+                          <td className="text-slate-700">{formatKG(l.averagePerRecord)} KG</td>
+                          <td className="text-right font-bold">
                             <span
-                              className={`px-2 py-0.5 rounded text-[10px] ${
+                              className={`px-2 py-0.5 rounded text-[10px] uppercase border ${
                                 l.status === 'High'
-                                  ? 'bg-red-100 text-red-800'
+                                  ? 'bg-red-50 text-red-800 border-red-200'
                                   : l.status === 'Medium'
-                                  ? 'bg-amber-100 text-amber-800'
-                                  : 'bg-emerald-100 text-emerald-800'
+                                  ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                  : 'bg-emerald-50 text-emerald-800 border-emerald-200'
                               }`}
                             >
-                              {l.status}
+                              {translatePriority(l.status?.toUpperCase() || 'LOW')}
                             </span>
                           </td>
                         </tr>
@@ -841,39 +833,39 @@ export default function Reports() {
             {/* TYPE 5: ALERT REPORT */}
             {reportData.reportType === 'alert' && (
               <div className="space-y-4">
-                <div className="overflow-x-auto border border-gray-200 rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200 text-xs">
-                    <thead className="bg-gray-50">
+                <div className="overflow-x-auto">
+                  <table className="govt-table">
+                    <thead>
                       <tr>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Priority</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Alert Title</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Location</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Observed</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Recommended Action</th>
+                        <th>Priority</th>
+                        <th>Alert Title</th>
+                        <th>Location</th>
+                        <th>Observed</th>
+                        <th>Recommended Action</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody>
                       {(reportData.alerts || []).map((a) => (
-                        <tr key={a._id} className="hover:bg-gray-50">
-                          <td className="px-6 py-3.5 font-bold">
+                        <tr key={a._id}>
+                          <td>
                             <span
-                              className={`px-2 py-0.5 rounded text-[10px] ${
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${
                                 a.priority === 'HIGH'
-                                  ? 'bg-red-100 text-red-800'
+                                  ? 'bg-red-50 text-red-800 border-red-200'
                                   : a.priority === 'MEDIUM'
-                                  ? 'bg-amber-100 text-amber-800'
-                                  : 'bg-emerald-100 text-emerald-800'
+                                  ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                  : 'bg-emerald-50 text-emerald-800 border-emerald-200'
                               }`}
                             >
-                              {a.priority}
+                              {translatePriority(a.priority)}
                             </span>
                           </td>
-                          <td className="px-6 py-3.5 font-semibold text-gray-900">{a.title}</td>
-                          <td className="px-6 py-3.5 text-gray-700">{a.location}</td>
-                          <td className="px-6 py-3.5 font-medium text-gray-900">
+                          <td className="font-bold text-slate-900">{a.title}</td>
+                          <td className="text-slate-700">{a.location}</td>
+                          <td className="font-bold text-slate-900">
                             {a.currentQuantity ? `${formatKG(a.currentQuantity)} KG` : 'N/A'}
                           </td>
-                          <td className="px-6 py-3.5 text-xs text-gray-600">{a.recommendation}</td>
+                          <td className="text-xs text-slate-600">{a.recommendation}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -886,52 +878,52 @@ export default function Reports() {
             {reportData.reportType === 'forecast' && (
               <div className="space-y-4">
                 {reportData.forecast?.sufficient === false ? (
-                  <div className="p-8 text-center bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-800 space-y-1">
+                  <div className="p-8 text-center bg-amber-50 rounded border border-amber-200 text-xs text-amber-800 space-y-1">
                     <p className="font-bold">Insufficient historical data to generate a reliable forecast.</p>
                     <p>{reportData.forecast?.reason}</p>
                   </div>
                 ) : (
                   <div className="space-y-6">
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-xs">
-                        <span className="text-gray-500 font-medium">Historical Daily Avg</span>
-                        <p className="text-lg font-bold text-gray-900 mt-0.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="p-3.5 bg-slate-50 rounded border border-slate-200 text-xs">
+                        <span className="text-slate-500 font-bold">{t('forecast.statHistoricalAvg')}</span>
+                        <p className="text-lg font-black text-slate-900 mt-0.5">
                           {formatKG(reportData.forecast?.data?.summary?.averageHistoricalWaste)} KG/day
                         </p>
                       </div>
-                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-xs">
-                        <span className="text-gray-500 font-medium">Projected Daily Avg</span>
-                        <p className="text-lg font-bold text-blue-700 mt-0.5">
+                      <div className="p-3.5 bg-slate-50 rounded border border-slate-200 text-xs">
+                        <span className="text-slate-500 font-bold">{t('forecast.statExpectedAvg')}</span>
+                        <p className="text-lg font-black text-[#003366] mt-0.5">
                           {formatKG(reportData.forecast?.data?.summary?.averageForecastWaste)} KG/day
                         </p>
                       </div>
-                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-xs">
-                        <span className="text-gray-500 font-medium">Projected Growth</span>
-                        <p className="text-lg font-bold text-emerald-700 mt-0.5">
+                      <div className="p-3.5 bg-slate-50 rounded border border-slate-200 text-xs">
+                        <span className="text-slate-500 font-bold">{t('forecast.statExpectedGrowth')}</span>
+                        <p className="text-lg font-black text-emerald-800 mt-0.5">
                           {reportData.forecast?.data?.summary?.expectedGrowthPercentage}%
                         </p>
                       </div>
-                      <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-xs">
-                        <span className="text-gray-500 font-medium">Forecast Method</span>
-                        <p className="text-xs font-semibold text-gray-800 mt-1">
+                      <div className="p-3.5 bg-slate-50 rounded border border-slate-200 text-xs">
+                        <span className="text-slate-500 font-bold">Method</span>
+                        <p className="text-xs font-bold text-slate-800 mt-1">
                           {reportData.forecast?.data?.method}
                         </p>
                       </div>
                     </div>
 
-                    <div className="overflow-x-auto border border-gray-200 rounded-lg">
-                      <table className="min-w-full divide-y divide-gray-200 text-xs">
-                        <thead className="bg-gray-50">
+                    <div className="overflow-x-auto">
+                      <table className="govt-table">
+                        <thead>
                           <tr>
-                            <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Forecast Date</th>
-                            <th className="px-6 py-3 text-right font-semibold text-gray-600 uppercase">Predicted Volume</th>
+                            <th>Forecast Date</th>
+                            <th style={{ textAlign: 'right' }}>Predicted Volume</th>
                           </tr>
                         </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
+                        <tbody>
                           {(reportData.forecast?.data?.forecast || []).map((f) => (
-                            <tr key={f.date} className="hover:bg-gray-50">
-                              <td className="px-6 py-3.5 font-medium text-gray-900">{f.date}</td>
-                              <td className="px-6 py-3.5 text-right font-bold text-blue-700">
+                            <tr key={f.date}>
+                              <td className="font-bold text-slate-900">{f.date}</td>
+                              <td className="text-right font-black text-[#003366]">
                                 {formatKG(f.predictedQuantity)} KG
                               </td>
                             </tr>
@@ -946,12 +938,13 @@ export default function Reports() {
           </div>
 
           {/* Institutional Document Footer */}
-          <div className="bg-gray-50 border-t border-gray-200 px-6 py-4 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-500 gap-2">
-            <span>Generated by CARPE Waste Management Platform • Official Administrative Document</span>
-            <span className="font-mono">VERIFIED ARCHIVE RECORD</span>
+          <div className="bg-slate-50 border-t border-slate-200 px-6 py-3.5 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-500 font-bold gap-2">
+            <span>GOVERNMENT OF TAMIL NADU • DEPARTMENT OF SOLID WASTE MANAGEMENT</span>
+            <span className="font-mono text-emerald-700">OFFICIAL VERIFIED RECORD</span>
           </div>
         </div>
       )}
     </div>
   );
 }
+
