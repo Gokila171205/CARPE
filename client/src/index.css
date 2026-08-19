@@ -1,18 +1,88 @@
 @import "tailwindcss";
 
 :root {
-  --primary: #10b981;
-  --background: #f8fafc;
-  --text: #0f172a;
+  --govt-blue: #003366;
+  --govt-dark-blue: #002244;
+  --govt-light-blue: #004d99;
+  --govt-gold: #c88a22;
+  --govt-light-gold: #fdf6e7;
+  --govt-border: #cbd5e1;
+  --govt-bg: #f4f6f9;
+  --govt-text-dark: #0f172a;
+  --govt-text-muted: #475569;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans Tamil', 'Helvetica Neue',
+    Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--background);
-  color: var(--text);
+  background-color: var(--govt-bg);
+  color: var(--govt-text-dark);
+}
+
+/* Accessibility Focus States */
+:focus-visible {
+  outline: 2px solid #003366;
+  outline-offset: 2px;
+}
+
+/* Skip link for screen readers */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #003366;
+  color: #ffffff;
+  padding: 8px 16px;
+  z-index: 100;
+  transition: top 0.2s;
+  font-weight: 600;
+  font-size: 13px;
+  border-radius: 0 0 4px 0;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Government Section Header Bar */
+.govt-section-header {
+  border-left: 4px solid #003366;
+  padding-left: 0.75rem;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+/* Government Table Styling */
+.govt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.govt-table th {
+  background-color: #f1f5f9;
+  color: #334155;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid #cbd5e1;
+  border-top: 1px solid #cbd5e1;
+}
+
+.govt-table td {
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+.govt-table tr:nth-child(even) td {
+  background-color: #fafbfc;
+}
+
+.govt-table tr:hover td {
+  background-color: #f0f4f8;
 }

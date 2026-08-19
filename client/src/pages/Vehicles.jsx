@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import { useLanguage } from '../context/LanguageContext';
 import {
   Plus,
   Search,
@@ -15,6 +16,7 @@ import {
 } from 'lucide-react';
 
 export default function Vehicles() {
+  const { t, translateWasteType, language } = useLanguage();
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -63,7 +65,7 @@ export default function Vehicles() {
 
   const handleDelete = async (id, e) => {
     if (e) e.stopPropagation();
-    if (window.confirm('Are you sure you want to remove this vehicle?')) {
+    if (window.confirm(t('common.delete') + '?')) {
       try {
         await api.delete(`/vehicles/${id}`);
         if (selectedVehicle?._id === id) {
@@ -91,7 +93,7 @@ export default function Vehicles() {
       });
       fetchVehicles();
     } catch (error) {
-      alert(error?.response?.data?.message || 'Failed to add vehicle');
+      alert(error?.response?.data?.message || t('common.error'));
     }
   };
 
@@ -110,9 +112,9 @@ export default function Vehicles() {
   };
 
   const formatDate = (isoStr) => {
-    if (!isoStr) return 'No collections';
+    if (!isoStr) return t('common.noCollectionsFound');
     try {
-      return new Date(isoStr).toLocaleDateString(undefined, {
+      return new Date(isoStr).toLocaleDateString(language === 'ta' ? 'ta-IN' : 'en-IN', {
         month: 'short',
         day: 'numeric',
         year: 'numeric'
@@ -122,107 +124,115 @@ export default function Vehicles() {
     }
   };
 
-  if (loading) return <div className="py-8 text-center text-gray-500">Loading vehicles...</div>;
+  if (loading) return <div className="p-8 text-center text-xs text-slate-500">{t('common.loading')}</div>;
 
   return (
     <div className="space-y-6">
       {/* Header Controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="relative w-full sm:w-64">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm"
-            placeholder="Search vehicles..."
-          />
+      <div className="bg-white border-2 border-slate-300 rounded-sm p-4 shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="govt-section-header text-base uppercase tracking-wide">
+            {t('vehicles.pageTitle')}
+          </h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            {t('vehicles.pageSubtitle')}
+          </p>
         </div>
 
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500"
-        >
-          <Plus className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-          Add Vehicle
-        </button>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+          <div className="relative w-full sm:w-64">
+            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-slate-400" />
+            </div>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="block w-full pl-8 pr-3 py-1.5 border border-slate-300 rounded text-xs leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
+              placeholder={t('common.searchPlaceholder')}
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowAddModal(true)}
+            className="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-xs text-xs font-bold rounded text-white bg-[#003366] hover:bg-[#002244] focus:outline-none focus:ring-2 focus:ring-[#003366]"
+          >
+            <Plus className="mr-1.5 h-4 w-4" />
+            {t('vehicles.registerVehicleBtn')}
+          </button>
+        </div>
       </div>
 
       {/* Fleet Summary Metrics */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center text-xs font-semibold text-gray-500 uppercase">
-            <Truck className="h-4 w-4 mr-1.5 text-emerald-600" />
-            Total Fleet
+        <div className="bg-white p-4 border-2 border-slate-300 rounded-sm shadow-xs">
+          <div className="flex items-center text-[11px] font-bold text-slate-600 uppercase">
+            <Truck className="h-4 w-4 mr-1.5 text-[#003366]" />
+            {t('vehicles.statTotalFleet')}
           </div>
-          <p className="text-2xl font-extrabold text-gray-900 mt-2">{vehicles.length}</p>
+          <p className="text-2xl font-black text-slate-900 mt-2">{vehicles.length}</p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center text-xs font-semibold text-gray-500 uppercase">
-            <History className="h-4 w-4 mr-1.5 text-blue-600" />
-            Total Collections
+
+        <div className="bg-white p-4 border-2 border-slate-300 rounded-sm shadow-xs">
+          <div className="flex items-center text-[11px] font-bold text-slate-600 uppercase">
+            <History className="h-4 w-4 mr-1.5 text-[#003366]" />
+            {t('vehicles.statTotalTrips')}
           </div>
-          <p className="text-2xl font-extrabold text-gray-900 mt-2">
+          <p className="text-2xl font-black text-slate-900 mt-2">
             {vehicles.reduce((acc, v) => acc + (v.totalCollections || 0), 0)}
           </p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center text-xs font-semibold text-gray-500 uppercase">
-            <Scale className="h-4 w-4 mr-1.5 text-indigo-600" />
-            Total Transported
+
+        <div className="bg-white p-4 border-2 border-slate-300 rounded-sm shadow-xs">
+          <div className="flex items-center text-[11px] font-bold text-slate-600 uppercase">
+            <Scale className="h-4 w-4 mr-1.5 text-[#003366]" />
+            {t('vehicles.statTotalVolume')}
           </div>
-          <p className="text-2xl font-extrabold text-gray-900 mt-2">
+          <p className="text-2xl font-black text-slate-900 mt-2">
             {formatKG(vehicles.reduce((acc, v) => acc + (v.totalWaste || 0), 0))} KG
           </p>
         </div>
-        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-          <div className="flex items-center text-xs font-semibold text-gray-500 uppercase">
-            <Layers className="h-4 w-4 mr-1.5 text-amber-600" />
-            Active Fleet
+
+        <div className="bg-white p-4 border-2 border-slate-300 rounded-sm shadow-xs">
+          <div className="flex items-center text-[11px] font-bold text-slate-600 uppercase">
+            <Layers className="h-4 w-4 mr-1.5 text-emerald-700" />
+            {t('vehicles.statActiveUnits')}
           </div>
-          <p className="text-2xl font-extrabold text-emerald-600 mt-2">
+          <p className="text-2xl font-black text-emerald-700 mt-2">
             {vehicles.filter((v) => v.status === 'Active').length}
           </p>
         </div>
       </div>
 
       {/* Vehicles Table List with Aggregated Collection Stats */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-md border border-gray-200">
+      <div className="bg-white border-2 border-slate-300 rounded-sm shadow-xs overflow-hidden">
+        <div className="px-5 py-3 border-b border-slate-200 bg-slate-50 flex justify-between items-center text-xs">
+          <span className="font-bold text-slate-700 uppercase tracking-wide">
+            {t('vehicles.tableHeading')} ({filteredVehicles.length})
+          </span>
+          <span className="text-slate-500">{t('vehicles.tableSubtitle')}</span>
+        </div>
+
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
+          <table className="govt-table">
+            <thead>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Vehicle / ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Type &amp; Capacity
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Collections Logged
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Total Waste Hauled
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Locations Visited
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Last Activity
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                <th>{t('vehicles.colVehicleNo')}</th>
+                <th>{t('vehicles.colType')} &amp; {t('vehicles.colCapacity')}</th>
+                <th>{t('vehicles.colTrips')}</th>
+                <th>{t('vehicles.colTotalWaste')}</th>
+                <th>{t('vehicles.colArea')}</th>
+                <th>{t('common.date')}</th>
+                <th style={{ width: '130px', textAlign: 'right' }}>{t('vehicles.colActions')}</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody>
               {filteredVehicles.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="p-8 text-center text-gray-500 text-sm">
-                    <Truck className="h-10 w-10 text-gray-300 mx-auto mb-2" />
-                    No vehicles registered or matching search.
+                  <td colSpan="7" className="p-8 text-center text-slate-500 text-xs">
+                    <Truck className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                    {t('common.noVehiclesFound')}
                   </td>
                 </tr>
               ) : (
@@ -231,67 +241,66 @@ export default function Vehicles() {
                     key={vehicle._id}
                     onClick={() => handleSelectVehicle(vehicle)}
                     className={`cursor-pointer transition-colors ${
-                      selectedVehicle?._id === vehicle._id ? 'bg-emerald-50' : 'hover:bg-gray-50'
+                      selectedVehicle?._id === vehicle._id ? '!bg-blue-50' : ''
                     }`}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-semibold text-gray-900">{vehicle.vehicleNumber}</div>
+                    <td>
+                      <div className="font-mono font-bold text-slate-900">{vehicle.vehicleNumber}</div>
                       <span
-                        className={`mt-1 inline-flex text-[10px] px-2 py-0.5 rounded font-medium ${
+                        className={`mt-1 inline-flex text-[10px] px-1.5 py-0.2 rounded font-bold uppercase border ${
                           vehicle.status === 'Active'
-                            ? 'bg-emerald-100 text-emerald-800'
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                             : vehicle.status === 'Maintenance'
-                            ? 'bg-amber-100 text-amber-800'
-                            : 'bg-gray-100 text-gray-800'
+                            ? 'bg-amber-50 text-amber-800 border-amber-200'
+                            : 'bg-slate-100 text-slate-700 border-slate-300'
                         }`}
                       >
-                        {vehicle.status || 'Active'}
+                        {vehicle.status === 'Active' ? t('common.active') : vehicle.status === 'Maintenance' ? t('common.maintenance') : t('common.inactive')}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-gray-900">{vehicle.vehicleType}</div>
-                      <div className="text-xs text-gray-500">{formatKG(vehicle.capacity)} KG capacity</div>
+                    <td>
+                      <div className="font-semibold text-slate-900">{vehicle.vehicleType}</div>
+                      <div className="text-[11px] text-slate-500">{formatKG(vehicle.capacity)} KG</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="font-semibold text-gray-900">{vehicle.totalCollections || 0}</span>
-                      <span className="text-xs text-gray-500 ml-1">trips</span>
+                    <td>
+                      <span className="font-bold text-slate-900">{vehicle.totalCollections || 0}</span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap font-bold text-gray-900">
+                    <td className="font-bold text-slate-900">
                       {formatKG(vehicle.totalWaste)} KG
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-600 text-xs">
+                    <td className="text-slate-600 text-xs">
                       {vehicle.locationsCount > 0 ? (
                         <div className="flex items-center gap-1">
-                          <MapPin className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                          <MapPin className="h-3.5 w-3.5 text-[#003366] flex-shrink-0" />
                           <span>
-                            {vehicle.locationsCount} zones ({vehicle.locationsCovered?.slice(0, 2).join(', ')}
+                            {vehicle.locationsCount} ({vehicle.locationsCovered?.slice(0, 2).join(', ')}
                             {vehicle.locationsCovered?.length > 2 ? '...' : ''})
                           </span>
                         </div>
                       ) : (
-                        <span className="text-gray-400">None</span>
+                        <span className="text-slate-400">None</span>
                       )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-xs text-gray-500">
+                    <td className="text-xs text-slate-600">
                       <div className="flex items-center gap-1">
-                        <Calendar className="h-3.5 w-3.5 text-gray-400" />
+                        <Calendar className="h-3.5 w-3.5 text-slate-400" />
                         {formatDate(vehicle.lastCollectionDate)}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="text-right">
                       <div className="flex justify-end items-center gap-2" onClick={(e) => e.stopPropagation()}>
                         <button
                           type="button"
                           onClick={() => handleSelectVehicle(vehicle)}
-                          className="px-2.5 py-1 text-xs font-semibold rounded text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
+                          className="px-2.5 py-1 text-[11px] font-bold rounded text-[#003366] bg-blue-50 hover:bg-blue-100 border border-blue-200"
                         >
-                          View Logs
+                          {t('common.viewDetails')}
                         </button>
                         <button
                           type="button"
                           onClick={(e) => handleDelete(vehicle._id, e)}
-                          className="text-red-600 hover:text-red-900 p-1"
-                          title="Delete Vehicle"
+                          className="text-red-700 hover:text-red-900 p-1"
+                          title={t('common.delete')}
                         >
                           <Trash className="h-4 w-4" />
                         </button>
@@ -307,14 +316,14 @@ export default function Vehicles() {
 
       {/* Selected Vehicle Activity Detail Panel */}
       {selectedVehicle && (
-        <div className="bg-white rounded-lg shadow-sm border border-emerald-200 overflow-hidden">
-          <div className="bg-slate-900 text-white p-5 flex justify-between items-center">
+        <div className="bg-white border-2 border-[#003366] rounded-sm shadow-xs overflow-hidden">
+          <div className="bg-[#003366] text-white px-5 py-3.5 flex justify-between items-center">
             <div>
-              <span className="text-xs uppercase tracking-widest text-emerald-400 font-bold">
-                Vehicle Activity History
+              <span className="text-[10px] uppercase tracking-widest text-amber-400 font-bold block">
+                {selectedVehicle.vehicleNumber}
               </span>
-              <h3 className="text-lg font-bold text-white mt-0.5">
-                {selectedVehicle.vehicleNumber} ({selectedVehicle.vehicleType})
+              <h3 className="text-base font-black text-white mt-0.5">
+                {t('vehicles.drawerTitle')}
               </h3>
             </div>
             <button
@@ -322,73 +331,69 @@ export default function Vehicles() {
                 setSelectedVehicle(null);
                 setVehicleHistory(null);
               }}
-              className="text-slate-400 hover:text-white p-1 rounded-md"
+              className="text-slate-300 hover:text-white p-1 rounded"
+              title={t('vehicles.closeDrawer')}
             >
               <X className="h-5 w-5" />
             </button>
           </div>
 
-          <div className="p-6 space-y-6">
+          <div className="p-5 space-y-4">
             {historyLoading ? (
-              <div className="py-8 text-center text-gray-500">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-2"></div>
-                Loading collection history...
-              </div>
+              <div className="p-8 text-center text-xs text-slate-500">{t('common.loading')}</div>
             ) : !vehicleHistory || !vehicleHistory.collections || vehicleHistory.collections.length === 0 ? (
-              <div className="p-6 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
-                <AlertCircle className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                <p className="font-semibold text-gray-700">No Collection Records Found</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  This vehicle has not been logged in any collections yet. Add a collection with Vehicle ID{' '}
-                  <span className="font-mono font-bold text-gray-800">{selectedVehicle.vehicleNumber}</span>.
-                </p>
+              <div className="p-6 text-center text-slate-600 bg-slate-50 border border-slate-200 rounded">
+                <AlertCircle className="h-7 w-7 text-slate-400 mx-auto mb-1" />
+                <p className="font-bold text-xs text-slate-800">{t('common.noCollectionsFound')}</p>
               </div>
             ) : (
-              <div className="space-y-4">
-                <div className="flex flex-wrap gap-4 text-xs bg-gray-50 p-4 rounded-lg border border-gray-200 justify-between items-center">
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-4 text-xs bg-slate-50 p-3.5 rounded border border-slate-200 justify-between items-center">
                   <div>
-                    <span className="text-gray-500 font-medium">Logged Trips:</span>
-                    <span className="ml-1 font-bold text-gray-900">{vehicleHistory.collections.length}</span>
+                    <span className="text-slate-500">{t('vehicles.colTrips')}:</span>
+                    <span className="ml-1 font-bold text-slate-900">{vehicleHistory.collections.length}</span>
                   </div>
                   <div>
-                    <span className="text-gray-500 font-medium">Total Hauled:</span>
-                    <span className="ml-1 font-bold text-emerald-700">{formatKG(vehicleHistory.vehicle.totalWaste)} KG</span>
+                    <span className="text-slate-500">{t('vehicles.colTotalWaste')}:</span>
+                    <span className="ml-1 font-bold text-[#003366]">{formatKG(vehicleHistory.vehicle.totalWaste)} KG</span>
                   </div>
                   <div>
-                    <span className="text-gray-500 font-medium">Locations Visited:</span>
-                    <span className="ml-1 font-bold text-gray-900">{vehicleHistory.vehicle.locationsCovered?.join(', ')}</span>
+                    <span className="text-slate-500">{t('vehicles.colArea')}:</span>
+                    <span className="ml-1 font-bold text-slate-900">{vehicleHistory.vehicle.locationsCovered?.join(', ')}</span>
                   </div>
                   <div>
-                    <span className="text-gray-500 font-medium">Waste Types:</span>
-                    <span className="ml-1 font-bold text-gray-900">{vehicleHistory.vehicle.wasteTypes?.join(', ')}</span>
+                    <span className="text-slate-500">{t('common.wasteType')}:</span>
+                    <span className="ml-1 font-bold text-slate-900">
+                      {vehicleHistory.vehicle.wasteTypes?.map((wt) => translateWasteType(wt)).join(', ')}
+                    </span>
                   </div>
                 </div>
 
-                <div className="overflow-x-auto border border-gray-200 rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-200 text-xs">
-                    <thead className="bg-gray-50">
+                <div className="overflow-x-auto border border-slate-200 rounded">
+                  <table className="govt-table">
+                    <thead>
                       <tr>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Collection Date</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Location</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Material Stream</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Quantity (KG)</th>
-                        <th className="px-6 py-3 text-left font-semibold text-gray-600 uppercase">Collector</th>
+                        <th>{t('collections.colDate')}</th>
+                        <th>{t('collections.colLocation')}</th>
+                        <th>{t('collections.colStream')}</th>
+                        <th>{t('collections.colQuantity')}</th>
+                        <th>{t('collections.colCollector')}</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody>
                       {vehicleHistory.collections.map((item) => (
-                        <tr key={item._id} className="hover:bg-gray-50">
-                          <td className="px-6 py-3 font-medium text-gray-900">
+                        <tr key={item._id}>
+                          <td className="font-medium text-slate-900">
                             {formatDate(item.collectedAt)}
                           </td>
-                          <td className="px-6 py-3 text-gray-700">{item.location}</td>
-                          <td className="px-6 py-3">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">
-                              {item.wasteType}
+                          <td className="font-bold text-slate-900">{item.location}</td>
+                          <td>
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-50 text-blue-900 border border-blue-200">
+                              {translateWasteType(item.wasteType)}
                             </span>
                           </td>
-                          <td className="px-6 py-3 font-bold text-gray-900">{formatKG(item.quantity)} KG</td>
-                          <td className="px-6 py-3 text-gray-500">{item.collector || 'N/A'}</td>
+                          <td className="font-bold text-slate-900">{formatKG(item.quantity)} KG</td>
+                          <td className="text-slate-600">{item.collector || 'N/A'}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -402,42 +407,48 @@ export default function Vehicles() {
 
       {/* Add Vehicle Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl border border-gray-100 space-y-4">
-            <h3 className="text-lg font-bold text-gray-900">Add New Vehicle</h3>
-            <form onSubmit={handleCreateVehicle} className="space-y-3">
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 flex items-center justify-center p-4">
+          <div className="bg-white border-2 border-slate-400 rounded-sm max-w-md w-full p-6 shadow-xl space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-200 pb-3">
+              <h3 className="text-base font-black text-slate-900 uppercase">{t('vehicles.modalTitle')}</h3>
+              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-700">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateVehicle} className="space-y-4 text-xs">
               <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                  Vehicle Number
+                <label className="block font-bold uppercase text-slate-700 mb-1">
+                  {t('vehicles.labelVehicleNumber')} <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. CARPE-VEH-01"
+                  placeholder={t('vehicles.placeholderVehicleNumber')}
                   value={formData.vehicleNumber}
                   onChange={(e) => setFormData({ ...formData, vehicleNumber: e.target.value })}
-                  className="block w-full border border-gray-300 rounded-md py-2 px-3 sm:text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="block w-full border border-slate-300 rounded py-2 px-3 focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                  Vehicle Type
+                <label className="block font-bold uppercase text-slate-700 mb-1">
+                  {t('vehicles.labelVehicleType')} <span className="text-red-600">*</span>
                 </label>
                 <select
                   value={formData.vehicleType}
                   onChange={(e) => setFormData({ ...formData, vehicleType: e.target.value })}
-                  className="block w-full border border-gray-300 rounded-md py-2 px-3 sm:text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="block w-full border border-slate-300 rounded py-2 px-3 focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
                 >
-                  <option value="Collection Truck">Collection Truck</option>
-                  <option value="Mini Truck">Mini Truck</option>
-                  <option value="Heavy Truck">Heavy Truck</option>
+                  <option value="Collection Truck">Collection Truck (Standard 2T)</option>
+                  <option value="Mini Truck">Mini Truck / Tipper</option>
+                  <option value="Heavy Truck">Heavy Compactor (5T+)</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                  Capacity (KG)
+                <label className="block font-bold uppercase text-slate-700 mb-1">
+                  {t('vehicles.labelCapacity')} <span className="text-red-600">*</span>
                 </label>
                 <input
                   type="number"
@@ -445,51 +456,51 @@ export default function Vehicles() {
                   min="100"
                   value={formData.capacity}
                   onChange={(e) => setFormData({ ...formData, capacity: Number(e.target.value) })}
-                  className="block w-full border border-gray-300 rounded-md py-2 px-3 sm:text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="block w-full border border-slate-300 rounded py-2 px-3 focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                  Assigned Area
+                <label className="block font-bold uppercase text-slate-700 mb-1">
+                  {t('vehicles.labelAssignedArea')}
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Anna Nagar"
+                  placeholder={t('vehicles.placeholderAssignedArea')}
                   value={formData.assignedArea}
                   onChange={(e) => setFormData({ ...formData, assignedArea: e.target.value })}
-                  className="block w-full border border-gray-300 rounded-md py-2 px-3 sm:text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="block w-full border border-slate-300 rounded py-2 px-3 focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1">
-                  Status
+                <label className="block font-bold uppercase text-slate-700 mb-1">
+                  {t('vehicles.labelInitialStatus')}
                 </label>
                 <select
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  className="block w-full border border-gray-300 rounded-md py-2 px-3 sm:text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="block w-full border border-slate-300 rounded py-2 px-3 focus:outline-none focus:ring-1 focus:ring-[#003366] focus:border-[#003366]"
                 >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                  <option value="Maintenance">Maintenance</option>
+                  <option value="Active">{t('common.active')}</option>
+                  <option value="Maintenance">{t('common.maintenance')}</option>
+                  <option value="Inactive">{t('common.inactive')}</option>
                 </select>
               </div>
 
-              <div className="flex justify-end gap-3 pt-3">
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-200">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="px-4 py-2 border border-slate-300 rounded font-bold text-slate-700 hover:bg-slate-50"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-sm font-medium shadow-sm"
+                  className="px-4 py-2 bg-[#003366] hover:bg-[#002244] text-white rounded font-bold shadow-xs"
                 >
-                  Save Vehicle
+                  {t('vehicles.registerSubmit')}
                 </button>
               </div>
             </form>
@@ -499,3 +510,4 @@ export default function Vehicles() {
     </div>
   );
 }
+
