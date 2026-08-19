@@ -1,220 +1,604 @@
-# CARPE — Municipal Waste Management & Decision Intelligence Platform
+# ♻️ CARPE
 
-CARPE is an enterprise-grade administrative and decision-intelligence platform engineered for municipal solid waste management, operational telemetry, geospatial monitoring, risk anomaly detection, predictive forecasting, and official government reporting.
+## Solid Waste Management Information & Decision Support System
 
----
+**CARPE** is a digital solid waste management platform designed to help authorities monitor waste collection, analyze waste-generation patterns, track collection vehicles, visualize geographic waste data, and support data-driven decision making.
 
-## Architecture & Modules Overview
-
-### 1. Operations & Logistics (Member 1)
-- **Waste Collections**: Real-time logging of municipal waste intake by zone, waste type, volume (KG), vehicle, and collector.
-- **Fleet & Vehicle Logistics**: Vehicle fleet management and capacity allocation.
-- **Zone Infrastructure**: Municipal sector and zone registry with geographic coordinates.
-
-### 2. Analytics & Decision Intelligence (Member 2)
-- **Analytics Dashboard (`/analytics`)**:
-  - 6 executive KPI cards (*Total Waste Volume*, *Daily Average Intake*, *Growth Rate %*, *Recyclable Fraction %*, *Peak Sector*, *Dominant Material*).
-  - Chronological trend analysis via Recharts line visualizations.
-  - Material stream donut distribution charts with interactive legends.
-  - Municipal zone load rankings with dynamic progress share metrics.
-  - Period-over-period growth intelligence cards.
-- **Geospatial Monitoring Map (`/map`)**:
-  - React-Leaflet interactive OpenStreetMap integration.
-  - Proportional circle markers colored by priority risk tier (`HIGH` >1,000 KG, `MEDIUM` 500–1,000 KG, `LOW` $\le$500 KG).
-  - Zone inspection popups and full telemetry summary table.
-  - Automatic boundary fitting and missing coordinate handling.
-- **Intelligent Waste Alerts (`/alerts`)**:
-  - Automated detection of 4 critical risk typologies: *High Waste Growth* (>20%), *Material Stream Surges* (>15%), *Zone Hotspots* ($\ge$1,000 KG or $\ge$35% share), and *Sudden Volume Spikes* ($\ge$1.8x baseline average).
-  - Deterministic fingerprinting preventing duplicate alerts.
-  - Data transparency grids showing current volume, baseline previous volume, growth %, and actionable administrative recommendations.
-- **AI Decision Intelligence (`/ai-insights`)**:
-  - Automated decision-support synthesis based on structured analytics evidence.
-  - Powered by Google Gemini (`gemini-1.5-flash`) with controlled prompting.
-  - Built-in **Deterministic Policy Engine** fallback guaranteeing 100% operational uptime without requiring external API keys.
-- **Predictive Waste Forecasting (`/forecast`)**:
-  - Multi-horizon forecasting (7, 14, 30 days) using Linear Trend & Exponentially Weighted Moving Average (EWMA).
-  - Historical actuals stitched to projected forecast line charts.
-  - Data sufficiency safeguards and reliability tier classification (`HIGH`, `MEDIUM`, `LOW`).
-- **Government Reports & Data Export (`/reports`)**:
-  - 6 official report formats (*Summary*, *Collection Activity*, *Material Stream*, *Location Analysis*, *Alerts*, *Forecast*).
-  - RFC-4180 compliant CSV Export.
-  - Vector PDF generator powered by `jsPDF` and `jspdf-autotable`.
+The platform is designed with a **government-oriented interface** for solid waste management operations across Tamil Nadu.
 
 ---
 
-## Technology Stack
+## 🏛️ About CARPE
 
-- **Frontend**: React 19, Vite, Tailwind CSS, Lucide React, Recharts, React-Leaflet, jsPDF, jspdf-autotable, Axios.
-- **Backend**: Node.js, Express, Mongoose 9, JSON Web Token (JWT), bcryptjs, cors, dotenv.
-- **Database**: MongoDB Atlas (Cloud) / In-Memory MongoDB Server for automated CI testing.
+Solid waste management requires continuous monitoring of collection activities, waste quantities, locations, vehicles, and changing waste-generation patterns.
+
+CARPE brings these activities together into a centralized digital platform.
+
+The system transforms raw waste collection data into meaningful information through:
+
+- 📊 Analytics
+- 🗺️ Geographic visualization
+- 🚛 Vehicle monitoring
+- 🔮 Waste forecasting
+- 🤖 AI-powered insights
+- 🚨 Alerts
+- 📑 Reports
+- 🌐 Tamil and English language support
+
+The goal is to help waste-management authorities understand current operations and make better decisions based on collected data.
 
 ---
 
-## Project Structure
+# ✨ Key Features
 
+### 📊 Waste Collection Management
+
+- Record waste collection details
+- Track collection locations
+- Record waste types and quantities
+- Associate collections with vehicles
+- View collection history
+- Search and filter collection records
+
+### 📈 Analytics & Decision Support
+
+- Total waste collected
+- Waste-category analysis
+- Location-based analysis
+- Collection trends
+- Growth analysis
+- Key performance indicators
+- High-waste area identification
+
+### 🗺️ Geographic Waste Monitoring
+
+- Interactive map-based visualization
+- Location-based waste monitoring
+- Geographic representation of collection activity
+- Dynamic detection of collection locations
+- Waste-volume-based map indicators
+
+### 🚛 Vehicle Management
+
+- Track waste collection vehicles
+- View vehicle collection activity
+- Monitor total waste transported
+- View collection history associated with vehicles
+
+### 🔮 Waste Forecasting
+
+- Analyze historical collection data
+- Identify waste-generation trends
+- Forecast future waste levels
+- Support collection planning and resource allocation
+
+### 🤖 AI Decision Insights
+
+- Generate insights from waste data
+- Identify unusual waste patterns
+- Highlight high-priority areas
+- Provide recommendations for collection planning
+
+### 🚨 Alerts
+
+- Detect significant changes in waste generation
+- Identify high-waste locations
+- Provide priority-based alerts
+- Support proactive waste-management decisions
+
+### 📑 Reports
+
+- View waste-management summaries
+- Analyze collection statistics
+- Support operational reporting
+- Provide data for planning and decision making
+
+### 🌐 Multilingual Support
+
+CARPE supports:
+
+- 🇬🇧 English
+- 🇮🇳 Tamil
+
+The interface can be switched between languages to improve accessibility for users across Tamil Nadu.
+
+---
+
+# 🖥️ Application Preview
+
+## 🇬🇧 Dashboard — English
+
+The CARPE dashboard provides a centralized overview of waste-management operations, including key statistics, collection information, and decision-support data.
+
+<img width="1918" height="1079" alt="Screenshot 2026-08-19 205226" src="https://github.com/user-attachments/assets/f5b377f8-c770-410e-b9a7-abf4ddfa5e5c" />
+
+
+---
+
+## 🇮🇳 — Tamil
+
+CARPE also provides Tamil language support, allowing users to interact with the platform in Tamil.
+
+<img width="1904" height="1066" alt="Screenshot 2026-08-19 205256" src="https://github.com/user-attachments/assets/bb74a639-dc94-46a5-aa5d-e2aecc9724d5" />
+
+---
+
+## 🗺️ Geographic Waste Monitoring
+
+The geographic monitoring interface provides a map-based view of waste collection activity across different locations.
+
+It helps authorities understand the geographic distribution of waste and identify areas requiring attention.
+<img width="1919" height="1079" alt="Screenshot 2026-08-19 205356" src="https://github.com/user-attachments/assets/47011ab3-bdd2-4bcf-a400-feb2b3552d1a" />
+
+---
+
+# 🔄 System Workflow
+
+
+```text
+                    WASTE COLLECTION
+                           │
+                           ▼
+                  Collection Data Entry
+                           │
+                           ▼
+                     Express API
+                           │
+                           ▼
+                       MongoDB
+                           │
+              ┌────────────┼────────────┐
+              │            │            │
+              ▼            ▼            ▼
+          Analytics      Mapping      Vehicles
+              │            │            │
+              └────────────┼────────────┘
+                           │
+                           ▼
+                  Decision Intelligence
+                           │
+              ┌────────────┼────────────┐
+              │            │            │
+              ▼            ▼            ▼
+          Forecasting   AI Insights   Alerts
+              │            │            │
+              └────────────┼────────────┘
+                           ▼
+                   Decision Support
 ```
+
+---
+
+# 🏗️ System Architecture
+
+```text
+┌──────────────────────────────────────────────┐
+│                CARPE PLATFORM                │
+├──────────────────────────────────────────────┤
+│                                              │
+│              React Frontend                  │
+│                                              │
+│  Dashboard │ Collections │ Analytics │ Map  │
+│  Vehicles  │ Forecast    │ AI Insights      │
+│  Alerts    │ Reports     │                  │
+│                                              │
+└──────────────────────┬───────────────────────┘
+                       │
+                       │ REST APIs
+                       ▼
+┌──────────────────────────────────────────────┐
+│              Node.js + Express               │
+│                                              │
+│ Authentication                              │
+│ Waste Management APIs                        │
+│ Analytics APIs                               │
+│ Vehicle APIs                                 │
+│ Map APIs                                     │
+│ Forecasting & AI Services                    │
+│ Alert Services                               │
+└──────────────────────┬───────────────────────┘
+                       │
+                       ▼
+┌──────────────────────────────────────────────┐
+│                 MongoDB Atlas                │
+│                                              │
+│ Users │ Waste Records │ Vehicles │ Alerts   │
+│ Locations │ Analytics Data                   │
+└──────────────────────────────────────────────┘
+```
+
+---
+
+# 🛠️ Technology Stack
+
+## Frontend
+
+- React.js
+- Vite
+- JavaScript
+- CSS
+- Recharts
+- React Leaflet
+- Leaflet
+- Axios
+
+## Backend
+
+- Node.js
+- Express.js
+- Mongoose
+- REST APIs
+
+## Database
+
+- MongoDB
+- MongoDB Atlas
+
+## Maps
+
+- Leaflet
+- React Leaflet
+- OpenStreetMap
+
+## AI & Intelligence
+
+- AI-powered insight generation
+- Waste trend analysis
+- Predictive forecasting
+- Rule-based alerts
+
+---
+
+# 📁 Project Structure
+
+```text
 CARPE/
+│
 ├── client/
-│   ├── src/
-│   │   ├── components/
-│   │   │   └── Layout.jsx          # Stationary admin layout (Fixed Navbar & Sidebar)
-│   │   ├── context/
-│   │   │   └── AuthContext.jsx     # User authentication state
-│   │   ├── pages/
-│   │   │   ├── Dashboard.jsx       # Executive overview & active alerts feed
-│   │   │   ├── Collections.jsx     # Waste collection log
-│   │   │   ├── AddCollection.jsx   # New collection entry form
-│   │   │   ├── Analytics.jsx       # Analytics & Decision Intelligence dashboard
-│   │   │   ├── Map.jsx             # Geospatial telemetry monitoring map
-│   │   │   ├── Alerts.jsx          # Operational alerts & risk detection
-│   │   │   ├── AIInsights.jsx      # AI Decision Intelligence portal
-│   │   │   ├── Forecast.jsx        # Predictive volume forecasting & planning
-│   │   │   └── Reports.jsx         # Executive reports with PDF & CSV export
-│   │   └── services/
-│   │       └── api.js              # Configured Axios instance with JWT interceptor
-│   ├── .env.example
-│   └── package.json
+│   ├── public/
+│   └── src/
+│       ├── components/
+│       ├── context/
+│       ├── pages/
+│       ├── services/
+│       ├── translations/
+│       ├── App.jsx
+│       └── index.css
+│
 ├── server/
 │   ├── controllers/
-│   │   ├── analyticsController.js  # Analytics, growth, map, forecast, and report APIs
-│   │   ├── alertsController.js     # Intelligent alerts retrieval & resolution
-│   │   ├── aiInsightController.js  # AI decision intelligence controller
-│   │   └── wasteController.js      # Collection CRUD operations
+│   ├── middleware/
 │   ├── models/
-│   │   ├── Alert.js
-│   │   ├── Location.js
-│   │   ├── User.js
-│   │   ├── Vehicle.js
-│   │   └── WasteRecord.js
 │   ├── routes/
-│   │   ├── aiRoutes.js
-│   │   ├── alertsRoutes.js
-│   │   ├── analyticsRoutes.js
-│   │   ├── authRoutes.js
-│   │   ├── locationRoutes.js
-│   │   ├── vehicleRoutes.js
-│   │   └── wasteRoutes.js
 │   ├── services/
-│   │   ├── aiInsightService.js     # Structured AI prompting & deterministic policy engine
-│   │   ├── alertService.js         # Mathematical anomaly detection algorithms
-│   │   └── analyticsService.js     # MongoDB aggregation & regression forecast engine
-│   ├── testRunner.js               # In-memory automated test suite
-│   ├── .env.example
-│   ├── server.js                   # Express application entrypoint
-│   └── package.json
-└── README.md
+│   ├── scripts/
+│   ├── test/
+│   └── server.js
+│
+├── screenshots/
+│   ├── dashboard-english.png
+│   ├── dashboard-tamil.png
+│   └── map.png
+│
+├── README.md
+└── .gitignore
 ```
 
 ---
 
-## Environment Variables Configuration
+# 📊 Core Modules
 
-### 1. Backend (`server/.env`)
-Create a `server/.env` file with the following parameters:
+| Module | Purpose |
+|---|---|
+| Dashboard | Overall waste-management overview |
+| Collections | Manage and monitor waste collection records |
+| Analytics | Analyze waste trends and categories |
+| Map | Geographic waste monitoring |
+| Vehicles | Monitor collection vehicles |
+| Forecast | Predict future waste-generation patterns |
+| AI Insights | Generate decision-support insights |
+| Alerts | Identify important waste-management events |
+| Reports | Generate operational summaries |
+| Language | English and Tamil interface |
+
+---
+
+# 🔐 Authentication & Security
+
+CARPE includes authentication and protected API access.
+
+The system uses:
+
+- User authentication
+- Protected API routes
+- Bearer token authorization
+- Environment variables for sensitive configuration
+- MongoDB connection through environment configuration
+
+Sensitive credentials such as database URLs and API keys should never be committed to the repository.
+
+---
+
+# 🌐 Language Support
+
+CARPE is designed to support both English and Tamil.
+
+```text
+English
+   ↕
+Language Switcher
+   ↕
+Tamil
+```
+
+The language system is designed so that interface elements, navigation, dashboards, and other supported content can be displayed according to the selected language.
+
+---
+
+# 🗺️ Geographic Intelligence
+
+CARPE uses geographic visualization to understand waste collection patterns.
+
+Collection records are associated with locations and can be represented on an interactive map.
+
+The system can:
+
+- Detect locations from collection data
+- Aggregate waste by location
+- Display collection activity geographically
+- Identify high-waste areas
+- Provide location-based decision support
+
+---
+
+# 🔮 Predictive Waste Forecasting
+
+Historical waste collection records can be analyzed to identify trends and estimate future waste-generation levels.
+
+Forecasting can help authorities with:
+
+- Collection planning
+- Vehicle allocation
+- Workforce planning
+- Resource allocation
+- Identification of increasing waste trends
+
+---
+
+# 🤖 AI-Based Decision Support
+
+CARPE uses collected waste data to generate meaningful insights.
+
+For example:
+
+```text
+Plastic waste in Anna Nagar has increased significantly
+compared with the previous period.
+
+Recommendation:
+Consider increasing collection frequency in this area.
+```
+
+The purpose of AI integration is to transform raw operational data into actionable recommendations.
+
+---
+
+# 🚨 Alert System
+
+CARPE can identify important changes in waste-generation patterns.
+
+Example:
+
+```text
+🚨 HIGH WASTE ALERT
+
+Plastic waste has increased significantly
+in a monitored location.
+
+Priority: HIGH
+```
+
+These alerts can help authorities take action before waste-management issues become larger operational problems.
+
+---
+
+# 👥 Team Responsibilities
+
+CARPE is developed as a collaborative full-stack project.
+
+### Member 1 — Waste Collection & Operations
+
+Responsible for:
+
+- Collection management
+- Waste record CRUD
+- Collection history
+- Vehicle integration
+- Collection-related APIs
+- Operational frontend
+
+### Member 2 — Analytics & Decision Intelligence
+
+Responsible for:
+
+- Analytics dashboard
+- Waste trends
+- Category analysis
+- Location analysis
+- Forecasting
+- AI insights
+- Alerts
+- Decision-support frontend and APIs
+
+Both members contribute to frontend, backend integration, testing, and overall system development.
+
+---
+
+# 🚀 Getting Started
+
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/Gokila171205/CARPE.git
+cd CARPE
+```
+
+## 2. Install frontend dependencies
+
+```bash
+cd client
+npm install
+```
+
+## 3. Install backend dependencies
+
+Open another terminal:
+
+```bash
+cd server
+npm install
+```
+
+## 4. Configure environment variables
+
+Create a `.env` file inside the `server` directory.
+
+Example:
+
 ```env
 PORT=5000
 MONGO_URI=your_mongodb_atlas_connection_string
-JWT_SECRET=your_secure_jwt_secret_key
-AI_API_KEY=your_gemini_api_key_optional
-CLIENT_URL=http://localhost:5173
-```
-*(Note: If `AI_API_KEY` is omitted or empty, the built-in Deterministic Policy Engine will automatically generate decision insights without errors.)*
-
-### 2. Frontend (`client/.env`)
-Create a `client/.env` file:
-```env
-VITE_API_URL=http://localhost:5000/api
+JWT_SECRET=your_secret_key
 ```
 
----
+Do not commit the `.env` file to GitHub.
 
-## Installation & Running Locally
+## 5. Start the backend
 
-### Step 1: Install Dependencies
-```powershell
-# Install backend dependencies
-cd server
-npm install
-
-# Install frontend dependencies
-cd ../client
-npm install
-```
-
-### Step 2: Run Development Servers
-Open two terminal windows:
-
-**Terminal 1 (Backend Server on Port 5000):**
-```powershell
+```bash
 cd server
 npm run dev
 ```
 
-**Terminal 2 (Frontend Client on Port 5173):**
-```powershell
+The server will run on:
+
+```text
+http://localhost:5000
+```
+
+## 6. Start the frontend
+
+Open another terminal:
+
+```bash
 cd client
 npm run dev
 ```
 
----
-
-## Running Automated Test Suite
-To run the automated integration test suite against an in-memory database:
-```powershell
-cd server
-node testRunner.js
-```
-The test runner validates:
-- Summary, Trend, Category, Location, and Growth aggregations.
-- Geospatial coordinate joins and missing coordinate handling.
-- Intelligent anomaly detection and priority weighting.
-- AI decision intelligence and deterministic fallback engines.
-- Linear regression forecasting across 7, 14, and 30-day horizons.
-- Report compilation and collection pagination.
-- Member 1 CRUD operations and auth security.
+Then open the URL shown by Vite in your browser.
 
 ---
 
-## API Endpoints Reference
+# 🧪 Testing
 
-| Method | Endpoint | Description |
-| :--- | :--- | :--- |
-| `GET` | `/api/analytics/summary` | Consolidated executive metrics and top sectors |
-| `GET` | `/api/analytics/trends` | Chronological collection trend line data |
-| `GET` | `/api/analytics/categories` | Material stream quantities and composition % |
-| `GET` | `/api/analytics/locations` | Municipal zone load analysis and risk levels |
-| `GET` | `/api/analytics/growth` | Period-over-period volume growth intelligence |
-| `GET` | `/api/analytics/map` | Geospatial markers joined with zone coordinates |
-| `GET` | `/api/analytics/forecast` | Predictive volume forecast with EWMA trend |
-| `GET` | `/api/analytics/reports` | Multi-type official administrative reports |
-| `GET` | `/api/alerts` | Intelligent operational risk detection alerts |
-| `PUT` | `/api/alerts/:id/resolve` | Mark active alert resolved |
-| `POST` | `/api/ai/insights` | Generate AI decision support insights |
+The backend contains test and verification scripts for important system functionality.
+
+Examples include:
+
+- Analytics testing
+- Dynamic location testing
+- Map integration testing
+- Vehicle mapping testing
+- Geocoding testing
+- Atlas data verification
 
 ---
 
-## Deployment Guidelines
+# 🎯 Project Objective
 
-### Frontend (Vercel)
-1. Import repository and set root directory to `client`.
-2. Framework Preset: **Vite**.
-3. Environment Variable: `VITE_API_URL=https://your-backend-url.onrender.com/api`.
-4. Build Command: `npm run build`. Output Directory: `dist`.
+The primary objective of CARPE is to create a centralized digital platform that enables solid waste-management authorities to:
 
-### Backend (Render / Railway)
-1. Create a Web Service pointing to `server` directory.
-2. Build Command: `npm install`.
-3. Start Command: `node server.js`.
-4. Environment Variables:
-   - `PORT=5000`
-   - `MONGO_URI=<MongoDB Atlas Connection String>`
-   - `JWT_SECRET=<Secret Key>`
-   - `CLIENT_URL=<Vercel Frontend URL>`
-   - `AI_API_KEY=<Gemini API Key (Optional)>`
+1. Monitor waste collection activities.
+2. Analyze waste-generation patterns.
+3. Track collection vehicles.
+4. Visualize waste geographically.
+5. Identify high-waste locations.
+6. Forecast future waste-generation trends.
+7. Receive decision-support insights.
+8. Improve resource and collection planning.
+9. Support multilingual access through English and Tamil.
 
 ---
 
-## Security & Compliance
-- Environment files (`.env`) are strictly excluded via `.gitignore`.
-- Authentication is enforced via JWT bearer tokens and `protect` middleware.
-- Input validation sanitizes all date ranges and query parameters preventing injection or invalid range crashes.
+# 🌱 Expected Impact
+
+CARPE aims to contribute to more efficient and data-driven solid waste management by helping authorities move from manual monitoring toward centralized digital decision support.
+
+### Expected benefits
+
+- ♻️ Improved waste collection efficiency
+- 📊 Better use of operational data
+- 🗺️ Improved geographic monitoring
+- 🚛 Better vehicle utilization
+- 🔮 Proactive collection planning
+- 🤖 Data-driven decision making
+- 🚨 Faster identification of waste-management issues
+- 🌐 Improved accessibility through Tamil language support
+
+---
+
+# 🏛️ Government-Oriented Design
+
+CARPE follows a professional government-oriented design approach inspired by public-sector digital service portals.
+
+The interface emphasizes:
+
+- Clear information presentation
+- Official government identity
+- Structured navigation
+- Accessibility
+- Data transparency
+- Decision-support information
+- Tamil language accessibility
+
+---
+
+# 📌 Future Enhancements
+
+Potential future improvements include:
+
+- Real-time GPS tracking of collection vehicles
+- IoT-based smart-bin integration
+- Route optimization
+- Mobile application for field workers
+- Advanced machine-learning forecasting
+- Automated report generation
+- Real-time notifications
+- Integration with additional municipal data sources
+- Expanded Tamil-language coverage
+
+---
+
+# 🌍 Vision
+
+> **To transform solid waste management through data, technology and intelligent decision support.**
+
+CARPE aims to provide a unified digital environment where waste collection data can be transformed into actionable intelligence for better planning, monitoring and management.
+
+---
+
+# 📄 Project Status
+
+**Status:** Active Development 🚧
+
+CARPE is being developed as a full-stack solid waste management and decision-support platform.
+
+---
+
+## 👨‍💻 Developed By
+
+**CARPE Development Team**
+
+Solid Waste Management Information & Decision Support System
+
+**Tamil Nadu, India 🇮🇳**
