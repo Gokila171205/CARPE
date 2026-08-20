@@ -39,6 +39,7 @@ app.use('/api/locations', require('./routes/locationRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
 app.use('/api/alerts', require('./routes/alertsRoutes'));
 app.use('/api/ai', require('./routes/aiRoutes'));
+app.use('/api/assistant', require('./routes/assistantRoutes'));
 
 // Basic route for testing
 app.get('/', (req, res) => {

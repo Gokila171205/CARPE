@@ -350,5 +350,37 @@ export default {
     loginLink: 'Sign in here',
     registerTitle: 'Municipal Officer Account Registration',
     registerSubtitle: 'Government of Tamil Nadu Solid Waste Management Portal'
+  },
+
+  // AI Assistant Chatbot
+  assistant: {
+    title: 'CARPE AI Assistant',
+    subtitle: 'Your intelligent solid waste management assistant',
+    badge: 'AI Telemetry',
+    online: 'Online',
+    newChat: '+ New Chat',
+    welcomeHeading: 'How can I help you today?',
+    welcomeSubheading: 'I can analyze CARPE’s waste collection data, vehicles, locations, trends, alerts and forecasts.',
+    cardAnalyzeTitle: 'Analyze Waste',
+    cardAnalyzeQuery: 'Which location has the highest waste?',
+    cardVehicleTitle: 'Vehicle Insights',
+    cardVehicleQuery: 'Which vehicle collected the most waste?',
+    cardLocationTitle: 'Location Analysis',
+    cardLocationQuery: 'Which locations need attention?',
+    cardTrendsTitle: 'Trends',
+    cardTrendsQuery: 'How has waste collection changed this week?',
+    cardForecastTitle: 'Forecast',
+    cardForecastQuery: 'What waste trend should we expect next?',
+    inputPlaceholder: 'Ask CARPE AI anything...',
+    send: 'Send',
+    thinking: 'CARPE AI is analyzing data...',
+    followUpsHeading: 'Suggested Follow-ups',
+    error: "Sorry, I couldn't retrieve the CARPE data right now. Please try again.",
+    retry: 'Retry Question',
+    copy: 'Copy Response',
+    copied: 'Copied!',
+    minimize: 'Minimize',
+    maximize: 'Expand Assistant',
+    close: 'Close Window'
   }
 };

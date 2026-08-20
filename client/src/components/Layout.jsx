@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import tnGovtEmblem from '../assets/tn-government-emblem.png';
+import AIAssistant from './AIAssistant';
 import {
   LayoutDashboard,
   Trash2,
@@ -417,6 +418,9 @@ export default function Layout() {
           </main>
         </div>
       </div>
+
+      {/* Floating CARPE AI Assistant */}
+      <AIAssistant />
     </div>
   );
 }
